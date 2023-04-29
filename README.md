@@ -16,17 +16,17 @@ Vagrant
 
 ## Nodes (guests)
 - Elastic (192.168.56.10)
-  - ElasticSearch  
-  - Kibana  
-  - Fleet  
+  - ElasticSearch
+  - Kibana
+  - Fleet
 
 - Windows (192.168.56.30)
-  - Elastic Agent  
-  - Sysmon  
-  - Atomic Red Team  
+  - Elastic Agent
+  - Sysmon
+  - Atomic Red Team
 
 - Linux (192.168.56.20)
-  - Elastic Agent  
+  - Elastic Agent
 
 - Kali (192.168.56.129)
   - Caldera
