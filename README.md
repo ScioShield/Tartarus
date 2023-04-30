@@ -8,36 +8,20 @@ CPU - 9 Cores*
 Storage - 50 GB  
 *Most modern CPUs have virtual cores so if you have a 4 physical core CPU you'll have 8 virtual cores.  
 RAM and Core count can be tweaked in the Vagrantfile  
-You don't have to bring up all systems at once, if you are just testing Windows 12 GB of RAM is enough.  
+You don't have to bring up all systems at once, if you are just testing Windows 12 GB of RAM and 6 CPU Cores (3 physical) is enough.  
 
 ### Software
 VirtualBox  
 Vagrant  
 
 ## Nodes (guests)
-- Elastic (192.168.56.10)
-  - ElasticSearch
-  - Kibana
-  - Fleet
 
-- Windows (192.168.56.30)
-  - Elastic Agent
-  - Sysmon
-  - Atomic Red Team
-
-- Linux (192.168.56.20)
-  - Elastic Agent
-
-- Kali (192.168.56.129)
-  - Caldera
-
-### Components
-| VM Name               | Operating System                     | CPU Cores | Memory (MB) | Private IP     |
-|-----------------------|--------------------------------------|-----------|-------------|----------------|
-| atomicfirefly-elastic | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  |
-| atomicfirefly-linux   | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  |
-| atomicfirefly-windows | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  |
-| atomicfirefly-kali    | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 |  
+| VM Name               | Operating System                     | CPU Cores | Memory (MB) | Private IP     | Components                                                        |
+|-----------------------|--------------------------------------|-----------|-------------|----------------|-------------------------------------------------------------------|
+| atomicfirefly-elastic | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  | ElasticSearch, Kibana, Fleet                                      |
+| atomicfirefly-linux   | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
+| atomicfirefly-windows | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
+| atomicfirefly-kali    | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |  
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
@@ -52,7 +36,7 @@ The Kali instance gets such a high IP so if an Opnsense firewall is added Kali c
 There is an issue of it reassigning itself an IP after ~10 min, am investigating.  
 
 ## Setup  
-Bring up Elastic, Windows, Linux, Kali or all hosts with the following commands  
+Bring up Elastic, Windows, Linux, Kali or all hosts with the following commands.  
 The Elastic cluster has to be started first if you want telemetry data!  
 
 ### Build
@@ -98,7 +82,7 @@ All data is saved just shuts down the VM.
 
 ### Re-build
 Be careful here you will lose all data internal to each VM if you do this!  
-All main apps (Elasticsearch, Kibana, Agents, Sysmon, Go, Git except Caldera) won't be redownloaded and are safe in the apps/ dir, however their configs and internal data like the Elasticsearch database, any custom Kibana dashboards, alerts, etc. will be deleted and reprovisioned. You have been warned!  
+All main apps (Elasticsearch, Kibana, Agents, Sysmon, Go, Git except Caldera and Atomic Red Team) won't be redownloaded and are safe in the apps/ dir, however their configs and internal data like the Elasticsearch database, any custom Kibana dashboards, alerts, etc. will be deleted and reprovisioned. You have been warned!  
 #### Elastic  
 `vagrant destroy elastic`  
 `vagrant up elastic --provision`  
@@ -106,6 +90,7 @@ All main apps (Elasticsearch, Kibana, Agents, Sysmon, Go, Git except Caldera) wo
 `vagrant destroy linux`  
 `vagrant up linux --provision`  
 #### Windows  
+Reprovisioning Windows will redownload Atomic Red Team every time as it doesn't go to the /apps dir!  
 `vagrant destroy windows`  
 `vagrant up windows --provision`  
 #### Kali  
@@ -191,7 +176,6 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 
 ## TODO
 Look into how ART works on Linux  
-Look into splitting out the --data and header sections of all the `curl` calls like I did in https://github.com/ScioShield/Elastic-Cloud-Agent  
 Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc.  
 
 ## Future improvements
