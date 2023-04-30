@@ -186,7 +186,7 @@ curl --silent -XPUT --url "https://$IP_ADDR:$ES_PORT/_security/service/elastic/f
  --output /root/Ftoken.txt \
  --cacert /tmp/certs/ca/ca.crt
 
-jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/keys/Ftoken.txt
+jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/tokens/Ftoken.txt
 
 # Add Fleet Policy
 curl --silent -XPOST \
@@ -338,7 +338,7 @@ curl --silent --user elastic:$E_PASS -XPUT "https://$DNS:$K_PORT/api/fleet/packa
 # Install the fleet server
 sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https://$DNS:$F_PORT \
  --fleet-server-es=https://$DNS:$ES_PORT \
- --fleet-server-service-token=$(cat /vagrant/keys/Ftoken.txt) \
+ --fleet-server-service-token=$(cat /vagrant/tokens/Ftoken.txt) \
  --fleet-server-policy=$(cat /vagrant/keys/FPid.txt) \
  --certificate-authorities=/vagrant/certs/ca.crt \
  --fleet-server-es-ca=/etc/pki/fleet/ca.crt \
