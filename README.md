@@ -11,8 +11,8 @@ RAM and Core count can be tweaked in the Vagrantfile
 You don't have to bring up all systems at once, if you are just testing Windows 12 GB of RAM and 6 CPU Cores (3 physical) is enough.  
 
 ### Software
-VirtualBox  
-Vagrant  
+[VirtualBox](https://www.virtualbox.org/wiki/Downloads)  
+[Vagrant](https://developer.hashicorp.com/vagrant/downloads)  
 
 ## Nodes (guests)
 
