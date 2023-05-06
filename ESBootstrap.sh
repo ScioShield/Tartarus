@@ -335,6 +335,17 @@ curl --silent --user elastic:$E_PASS -XPUT "https://$DNS:$K_PORT/api/fleet/packa
   --header @<(envsubst < /vagrant/config/sec_headers.txt) \
   --data @/root/LEDI_in.txt
 
+# Enable all Windows and Linux default alerts
+curl --silent -XPOST \
+  --user elastic:$E_PASS \
+  --cacert /tmp/certs/ca/ca.crt \
+  --header @/vagrant/config/headers.txt \
+  --url "https://$DNS:$K_PORT/api/detection_engine/rules/_bulk_action" \
+  --data '{
+  "query": "alert.attributes.tags: \"Windows\" OR alert.attributes.tags: \"Linux\"",
+  "action": "enable"
+}'
+
 # Install the fleet server
 sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https://$DNS:$F_PORT \
  --fleet-server-es=https://$DNS:$ES_PORT \

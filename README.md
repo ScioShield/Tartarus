@@ -120,22 +120,15 @@ The password is in a file called "Password.txt" in the directory you ran Vagrant
 this is the password to the Superuser account so be careful.  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
 
-## Enabling all Kibana Alerts
-Once you have logged into the Kibana instance on `https://192.168.56.10:5601` or `https://atomicfirefly-elastic:5601` now it is time to enable all the alerts.  
+## Vewing Kibana Alerts
+Once you have logged into the Kibana instance on `https://192.168.56.10:5601` or `https://atomicfirefly-elastic:5601` now it is time to view the alerts.  
+The Windows and Linux alerts are auto enabled for you.  
 Search for alerts in the universal search tab, or open the burger and scroll down to the security tab.  
 ![elasticAlert1](images/elasticAlert1.png "welcome")  
 Now search for "alerts".  
 ![elasticAlert2](images/elasticAlert2.png "search")  
-Now click "Manage rules".  
-![elasticAlert3](images/elasticAlert3.png "manage")  
-Now sort by tag for Windows.  
-![elasticAlert4](images/elasticAlert4.png "tags")  
-Select all rules.  
-![elasticAlert5](images/elasticAlert5.png "rules")  
-Select bulk actions and enable. 
-![elasticAlert6](images/elasticAlert6.png "bulk")  
-
-
+You should see the alerts page (Note you might not have any alerts yet, you'd need to start the Windows host and run the  EDR-Telemetry-Generator for example)  
+![elasticAlert3](images/alerts.png "alert")
 
 ## Atomic Red Team Tests
 Using the EDR-Telemetry-Generator from [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
