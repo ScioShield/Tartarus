@@ -6,8 +6,8 @@ AtomicFireFly, is designed to automate the process of deploying and testing secu
 RAM - 17 GB  
 CPU - 9 Cores*  
 Storage - 50 GB  
-*Most modern CPUs have virtual cores so if you have a 4 physical core CPU you'll have 8 virtual cores.  
-RAM and Core count can be tweaked in the Vagrantfile  
+*Most modern CPUs have "virtual cores" so if you have 4 physical cores you'll have 8 virtual.  
+RAM and Core count can be tweaked in the Vagrantfile.  
 You don't have to bring up all systems at once, if you are just testing Windows 12 GB of RAM and 6 CPU Cores (3 physical) is enough.  
 
 ### Software
@@ -34,6 +34,12 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 
 The Kali instance gets such a high IP so if an Opnsense firewall is added Kali can be out of "homenet" with a /25 network.  
 There is an issue of it reassigning itself an IP after ~10 min, am investigating.  
+
+## Note
+**This is not for production!**  
+Please use as a guide / lab only, I do things like placing the elastic user password in a file  
+This should never be done in prod!  
+If an adversary gets you Elastic super-user password or root access to a node it is **GAME OVER!**  
 
 ## Setup  
 Bring up Elastic, Windows, Linux, Kali or all hosts with the following commands.  
@@ -117,10 +123,10 @@ Log into Kibana (remote)
   
 Username: `elastic` 
 The password is in a file called "Password.txt" in the directory you ran Vagrant from,  
-this is the password to the Superuser account so be careful.  
+this is the password to the Superuser account so be careful!  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
 
-## Vewing Kibana Alerts
+## Viewing Kibana Alerts
 Once you have logged into the Kibana instance on `https://192.168.56.10:5601` or `https://atomicfirefly-elastic:5601` now it is time to view the alerts.  
 The Windows and Linux alerts are auto enabled for you.  
 Search for alerts in the universal search tab, or open the burger and scroll down to the security tab.  
@@ -152,8 +158,6 @@ Password: admin
 ![calderaLogin](images/calderaLogin.png "zap")  
 Now you can do the usual. I highly recommend the in platform training for a better understanding.  
 
-
-
 ## Inspirations
 The main inspiration for this work is from the incredible project [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
 The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://github.com/geerlingguy) excellent book Ansible for DevOps.  
@@ -169,10 +173,11 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 
 ## TODO
 Look into how ART works on Linux  
-Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc.  
+Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc. Could be done with an improvised `.env` file and functions to export all vars local to each script?  
+Think about password saving and add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
 
 ## Future improvements
 Add an Opnsense node  
 Add a Remnux/CSI Linux node  
 Use Ansible to provision all the nodes for true idempotence  
-Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :)  
+Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
