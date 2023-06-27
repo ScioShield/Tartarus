@@ -169,7 +169,7 @@ systemctl enable kibana
 
 # Var settings (has to happen after Elastic is installed)
 E_PASS=$(sudo grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}')
-grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}' > /vagrant/Password.txt
+#grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}' > /vagrant/Password.txt
 
 # Test if Kibana is running
 echo "Testing if Kibana is online, could take some time, no more than 5 mins"
@@ -178,7 +178,7 @@ do
     echo "Kibana starting, still waiting..."
     sleep 5
 done
-echo "Kibana online"
+echo "Kibana online!"
 
 # Make the Fleet token
 curl --silent -XPUT --url "https://$IP_ADDR:$ES_PORT/_security/service/elastic/fleet-server/credential/token/fleet-token-1" \
@@ -361,11 +361,21 @@ curl --silent --cacert /tmp/certs/ca/ca.crt -XGET "https://$DNS:$K_PORT/api/flee
 # Get the Linux policy id
 curl --silent --cacert /tmp/certs/ca/ca.crt -XGET "https://$DNS:$K_PORT/api/fleet/enrollment_api_keys" -H 'accept: application/json' -u elastic:$E_PASS | sed -e "s/\},{/'\n'/g" -e "s/items/'\n'/g" | grep -E -m1 $(cat /vagrant/keys/LPid.txt) | grep -oP '[a-zA-Z0-9\=]{40,}' > /vagrant/tokens/LAEtoken.txt
 
+# Cleanup
+for file in "/root/ESUpass.txt" "/root/Kibpass.txt" "/root/Ftoken.txt" "/root/FPid.txt" "/root/FIid.txt" "/root/WPid.txt" "/root/LPid.txt" "/root/WIid.txt" "/root/CWIid.txt" "/root/WEDI.txt" "/root/WEDI_out.txt" "/root/WEDI_in.txt" "/root/LIid.txt" "/root/LEDI.txt" "/root/LEDI_out.txt" "/root/LEDI_in.txt"
+do
+    sudo rm -f "$file"
+done
+
 echo "To log into KLibana go to https://$IP_ADDR:$K_PORT"
 echo "Or go to https://$DNS:$K_PORT once you have updated your DNS settings in your hosts, hosts file!"
 echo "Username: elastic"
-echo "Password: $(cat /vagrant/Password.txt)"
-echo "Password is saved in Password.txt"
+echo "Password: $(echo $E_PASS)"
+echo "SAVE THE PASSWORD!!!"
+echo "If you didn't save this password you can reset the Elastic user password with this command"
+echo "on the elastic host:"
+echo "sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic"
+echo "The CA cert is in certs/"
 echo "Tokens are saved in tokens/"
 echo "To enroll Windows agents use this token: $(cat /vagrant/tokens/WAEtoken.txt)"
 echo "To enroll Linux agents use this token: $(cat /vagrant/tokens/LAEtoken.txt)"

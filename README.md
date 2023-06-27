@@ -174,7 +174,8 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 ## TODO
 Look into how ART works on Linux  
 Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc. Could be done with an improvised `.env` file and functions to export all vars local to each script?  
-Think about password saving and add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
+~~Think about password saving~~  
+Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
 
 ## Future improvements
 Add an Opnsense node  
