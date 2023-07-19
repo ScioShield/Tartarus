@@ -1,7 +1,7 @@
 {
   "package": {
     "name": "winlog",
-    "version": "1.12.2"
+    "version": "1.16.0"
   },
   "name": "winlog-1",
   "namespace": "default",

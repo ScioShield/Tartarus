@@ -1,7 +1,7 @@
 {
   "package": {
     "name": "fleet_server",
-    "version": "1.2.0"
+    "version": "1.3.1"
   },
   "name": "fleet_server-1",
   "namespace": "default",
@@ -10,11 +10,6 @@
   "inputs": {
     "fleet_server-fleet-server": {
       "enabled": true,
-      "vars": {
-        "host": "${IP_ADDR}",
-        "port": [
-          8220
-        ],
         "custom": "ssl.certificate_authorities: [\"/vagrant/certs/ca.crt\"]"
       },
       "streams": {}
