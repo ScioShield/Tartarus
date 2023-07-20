@@ -10,6 +10,7 @@
   "inputs": {
     "fleet_server-fleet-server": {
       "enabled": true,
+      "vars": {
         "custom": "ssl.certificate_authorities: [\"/vagrant/certs/ca.crt\"]"
       },
       "streams": {}
