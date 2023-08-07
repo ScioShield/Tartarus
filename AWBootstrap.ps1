@@ -35,3 +35,7 @@ Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" 
 "@
 
 Add-Content -Path $profilePath -Value $linesToAppend
+
+# Download and update the Sysmon config
+& "C:\Program Files\Git\bin\git.exe" clone https://github.com/Neo23x0/sysmon-config.git "C:\Program Files\sysmon-config"
+& Sysmon64.exe -c "C:\Program Files\sysmon-config\sysmonconfig-export.xml"
