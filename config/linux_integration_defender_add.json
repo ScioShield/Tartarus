@@ -24,6 +24,6 @@
   "package": {
     "name": "endpoint",
     "title": "Elastic Defend",
-    "version": "${VER}"
+    "version": "8.11.0"
   }
 }

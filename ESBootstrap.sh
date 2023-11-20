@@ -25,7 +25,7 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 # We also pull the SHA512 hashes for you to check
 
 # var settings
-export VER=8.8.0
+export VER=8.11.1
 export IP_ADDR=192.168.56.10
 export K_PORT=5601
 export ES_PORT=9200
@@ -180,6 +180,13 @@ do
 done
 echo "Kibana online!"
 
+# Install all the prebuilt rules
+curl --silent -XPUT \
+  --user elastic:$E_PASS \
+  --cacert /tmp/certs/ca/ca.crt \
+  --header @/vagrant/config/headers.txt \
+  --url "https://$DNS:$K_PORT/api/detection_engine/rules/prepackaged"
+
 # Make the Fleet token
 curl --silent -XPUT --url "https://$IP_ADDR:$ES_PORT/_security/service/elastic/fleet-server/credential/token/fleet-token-1" \
  --user elastic:$E_PASS \
@@ -276,7 +283,7 @@ curl --silent -XPOST \
   --data @<(envsubst < /vagrant/config/windows_integration_update_defender_logs.json)
 
 # Create the Windows Elastic Defender Intigration 
-curl --silent -XPOST \
+curl -XPOST \
   --user elastic:$E_PASS \
   --output /root/WEDI.txt \
   --cacert /tmp/certs/ca/ca.crt \
@@ -335,16 +342,16 @@ curl --silent --user elastic:$E_PASS -XPUT "https://$DNS:$K_PORT/api/fleet/packa
   --header @<(envsubst < /vagrant/config/sec_headers.txt) \
   --data @/root/LEDI_in.txt
 
-# Enable all Windows and Linux default alerts
+# Enable all Windows and Linux default alerts (must have the pipe to dev null or it will spam STDOUT)
 curl --silent -XPOST \
   --user elastic:$E_PASS \
   --cacert /tmp/certs/ca/ca.crt \
   --header @/vagrant/config/headers.txt \
   --url "https://$DNS:$K_PORT/api/detection_engine/rules/_bulk_action" \
   --data '{
-  "query": "alert.attributes.tags: \"Windows\" OR alert.attributes.tags: \"Linux\"",
+  "query": "alert.attributes.tags: \"OS: Windows\" OR alert.attributes.tags: \"OS: Linux\"",
   "action": "enable"
-}'
+}' > /dev/null
 
 # Install the fleet server
 sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https://$DNS:$F_PORT \
