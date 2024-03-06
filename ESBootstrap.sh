@@ -25,7 +25,7 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 # We also pull the SHA512 hashes for you to check
 
 # var settings
-export VER=8.11.1
+export VER=8.12.0
 export IP_ADDR=192.168.56.10
 export K_PORT=5601
 export ES_PORT=9200
