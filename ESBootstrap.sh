@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 # This will only work on Rocky Linux (it has not been tested on other distros!)
 
-# Test if the VM can reach the internet to download packages
-until ping -c 1 google.com | grep -q "bytes from"
+# Test if the we can reach the internet to download packages
+attempt=0
+until curl --silent --head --fail https://www.google.com | grep -q "HTTP/.* 200"
 do
+    attempt=$((attempt+1))
+    if [ $attempt -ge 5 ]; then
+        echo "Device can't reach the internet on port 443 after 5 attempts. Exiting..."
+        exit 1
+    fi
     echo "offline, still waiting..."
     sleep 5
 done
