@@ -18,3 +18,9 @@ sudo /opt/elastic-agent-8.12.0-linux-x86_64/elastic-agent install -f \
   --url=https://atomicfirefly-elastic:8220 \
   --enrollment-token=$(cat /vagrant/tokens/LAEtoken.txt) \
   --certificate-authorities=/vagrant/certs/ca.crt
+
+# Download the audit.rules file
+sudo curl -o /etc/audit/rules.d/audit.rules https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules
+sudo chmod 0640 /etc/audit/rules.d/audit.rules
+
+echo("Please restart the system to apply the audit rules.")
