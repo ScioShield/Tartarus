@@ -15,7 +15,7 @@ def SetupAPICredentials():
 
 
 def main():
-    es_url = "https://192.168.56.10:5601/api/alerting/rule/"
+    es_url = "https://atomicfirefly-elastic:5443/api/alerting/rule/"
     headers = {"Content-Type": "application/json", "kbn-xsrf": "true", "Connection": "keep-alive", "Accept": "application/json", "Cache-Control": "no-cache"}
     es_username, es_password, CA_CERTS_PATH = SetupAPICredentials()
     print(es_url, es_username, es_password, CA_CERTS_PATH)

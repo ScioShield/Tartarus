@@ -13,7 +13,7 @@ Invoke-Expression (Invoke-WebRequest 'https://raw.githubusercontent.com/redcanar
 Install-AtomicRedTeam -getAtomics
 
 # Install the Elastic agent and Sysmon
-& 'C:\Program Files\elastic-agent-8.12.0-windows-x86_64\elastic-agent.exe' install -f --url=https://atomicfirefly-elastic:8220 --certificate-authorities='C:\vagrant\certs\ca.crt' --enrollment-token=$(Get-Content C:\vagrant\tokens\WAEtoken.txt)
+& 'C:\Program Files\elastic-agent-8.12.0-windows-x86_64\elastic-agent.exe' install -f --url=https://atomicfirefly-elastic:8220 --certificate-authorities='C:\vagrant\certs\root_ca.crt' --enrollment-token=$(Get-Content C:\vagrant\tokens\WAEtoken.txt)
 & 'C:\Program Files\Sysmon64.exe' -accepteula -i
 
 $installer = "C:\vagrant\apps\Git-2.39.2-64-bit.exe"
