@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
     elastic.vm.box_url = "bento/rockylinux-8.7"
     elastic.vm.provision :shell, path: "ESBootstrap.sh"
     elastic.vm.network :private_network, ip:"192.168.56.10"
-    elastic.vm.network :forwarded_port, guest: 5601, host: 5601, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
+    elastic.vm.network :forwarded_port, guest: 5443, host: 5443, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
     elastic.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 4]
