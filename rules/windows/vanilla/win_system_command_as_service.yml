@@ -1,0 +1,30 @@
+title: Win Security Command As Service
+id: 37166d35-473f-4c80-b5ee-dc22f09540c8
+status: experimental
+description: Detects a command being run as a service on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1569.002/T1569.002.md
+author: Dylan Shield
+date: 2024/05/02
+tags:
+    - attack.execution
+    - attack.t1569.002
+logsource:
+    product: windows
+    service: system
+detection:
+    selection:
+      EventID: 7045
+      ImagePath|contains:
+        - 'cmd.exe'
+        - 'powershell.exe'
+        - 'wscript.exe'
+        - 'cscript.exe'
+        - 'regsvr32.exe'
+        - 'rundll32.exe'
+        - 'hidden'
+    condition: selection
+falsepositives:
+    - Legitimate administrative activity
+    - Software installation
+level: high

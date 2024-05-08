@@ -1,0 +1,25 @@
+title: Win Security Local Account Create Or Modification No Pass Exp
+id: a9b2b780-0edf-459e-aaf0-5431c31ef4f8
+status: experimental
+description: Detects the creation or modification of a local account with no password expiration on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1078.003/T1078.003.md
+author: Dylan Shield
+date: 2024/05/06
+tags:
+    - attack.persistence
+    - attack.t1136.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_create_accountneverexpires:
+        EventID: 4720
+        AccountExpires|startswith: '%'
+    selection_edit_accountneverexpires:
+        EventID: 4738
+        AccountExpires|startswith: '%'
+    condition: 1 of selection_*
+falsepositives:
+    - Unknown
+level: critical

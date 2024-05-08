@@ -1,0 +1,24 @@
+title: Guest user account enabled
+id: f279fad7-c452-4761-bd72-4367ed58c97c
+status: experimental
+description: Detects the enabling of the guest user account, which could be legitimate activity or a sign of privilege escalation activity
+author: Dylan Shield
+date: 2021/01/17
+references:
+    - https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4720
+    - https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+tags:
+    - attack.initial_access
+    - attack.t1078.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4722
+        TargetUserName: 'Guest'
+        TargetSid|endswith: '-501'
+    condition: selection
+falsepositives:
+    - Legitimate administrative activity
+level: low

@@ -1,0 +1,21 @@
+title: Win System Rename Admin Account
+id: 9235b948-23d3-4718-866d-ebfc28902d10
+status: experimental
+description: Detects the Administrator account being renamed on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1098/T1098.md#atomic-test-1---admin-account-manipulate
+author: Dylan Shield
+date: 2024/05/04
+tags:
+    - attack.t1098
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4781
+        OldTargetUserName: 'Administrator'
+    condition: selection
+falsepositives:
+    - Legitimate administrative activity
+level: high

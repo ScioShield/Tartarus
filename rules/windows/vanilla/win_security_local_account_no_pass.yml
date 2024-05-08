@@ -1,0 +1,30 @@
+title: Win Security Local Account No Pass Exp
+id: 39152daa-d518-48e5-896a-ebda94be70e2
+related:
+    - id: 66b6be3d-55d0-4f47-9855-d69df21740ea
+      type: similar
+status: experimental
+description: Detects the creation of a local account with no password on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1564/T1564.md
+author: Dylan Shield
+date: 2024/05/06
+tags:
+    - attack.persistence
+    - attack.t1136.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_newuaclist_uppercase:
+        EventID: 4720
+        NewUACList:
+            - 'USER_PASSWORD_NOT_REQUIRED'
+    selection_newuaclist_lowercase:
+        - EventID: 4720
+          NewUACList:
+              - 'user_password_not_required'
+    condition: 1 of selection_*
+falsepositives:
+    - Unknown
+level: high

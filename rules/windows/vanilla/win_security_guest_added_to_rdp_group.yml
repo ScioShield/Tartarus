@@ -1,0 +1,30 @@
+title: Guest Account Added to RDP Group
+status: experimental
+id: 8c56c9b0-4365-4030-a8b8-d4e1e77c34e7
+related:
+  - id: ffa28e60-bdb1-46e0-9f82-05f7a61cc06e
+    type: similar
+description: Detects the guest account is has been added to the Remote Desktop Users group
+author: Dylan Shield
+logsource:
+  product: windows
+  service: security
+date: 2024/04/28
+tags:
+  - attack.initial_access
+  - attack.t1078.001
+detection:
+  selection_1:
+    EventID: 4732
+    # Need to check for the Guest account however the target user name needs to be fixed upstream as it's actually the group name
+    MemberSid|endswith: '-501'
+    TargetUserName: 'Remote Desktop Users'
+  selection_2:
+    EventID: 4732
+    # Need to check for the Guest account however the target user name needs to be fixed upstream as it's actually the group name
+    MemberSid|endswith: '-501'
+    GroupName: 'Remote Desktop Users'
+  condition: selection_1 or selection_2
+falsepositives:
+  - Legitimate administrative activity
+level: high

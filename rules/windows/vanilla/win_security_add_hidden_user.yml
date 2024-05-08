@@ -1,0 +1,25 @@
+title: Win Security Create Hidden User
+id: 5df5a789-e300-461a-bc09-4ef01c2d8a64
+related:
+    - id: 8a58209c-7ae6-4027-afb0-307a78e4589a
+      type: similar
+status: experimental
+description: Detects the creation of a hidden user on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1564/T1564.md
+author: Dylan Shield
+date: 2024/05/06
+tags:
+    - attack.defense_evasion
+    - attack.t1564
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4720
+        TargetUserName: '$'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium

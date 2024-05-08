@@ -1,0 +1,28 @@
+title: WMI enumerated user privileges
+id: b88fd895-0039-4cb6-81f4-8e4324c9f349
+related:
+    - id: d21374ff-f574-44a7-9998-4a8c8bf33d7d
+      type: similar
+status: experimental
+description: Detects the enumeration of user privileges using WMI, which could be legitimate activity or a sign of privilege escalation activity
+author: Dylan Shield
+date: 2024/04/28
+tags:
+    - attack.execution
+    - attack.t1047
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_callerprocess_uppercase:
+        EventID: 4798
+        CallerProcessName|endswith:
+        - '\WmiPrvSE.exe'
+    selection_callerprocess_lowercase:
+        EventID: 4798
+        CallerProcessName|endswith:
+        - '\wmiprvse.exe'
+    condition: 1 of selection_*
+falsepositives:
+    - Legitimate administrative activity
+level: low

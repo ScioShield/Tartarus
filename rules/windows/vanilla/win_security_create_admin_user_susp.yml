@@ -1,0 +1,22 @@
+title: Win Security Create Admin User Susp
+id: af8d6417-62f6-4cd5-81a9-63612977280f
+status: experimental
+description: Detects the creation of a admin user (with a space in the name) on a Windows host
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1564/T1564.md
+author: Dylan Shield
+date: 2024/05/06
+tags:
+    - attack.defense_evasion
+    - attack.t1564
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4720
+        TargetUserName|re: 'Administrator '
+    condition: selection
+falsepositives:
+    - Unknown
+level: critical
