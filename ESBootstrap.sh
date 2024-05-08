@@ -196,41 +196,7 @@ jq '."ca-config" = "/etc/elastic-step-ca/config/ca.json" | ."root" = "/etc/elast
 jq '."root" = "/etc/elastic-step-ca/certs/root_ca.crt" | ."crt" = "/etc/elastic-step-ca/certs/intermediate_ca.crt" | ."key" = "/etc/elastic-step-ca/secrets/intermediate_ca_key" | ."db"."dataSource" = "/etc/elastic-step-ca/db"' /etc/elastic-step-ca/config/ca.json > /etc/elastic-step-ca/config/ca.json.tmp && mv -f /etc/elastic-step-ca/config/ca.json.tmp /etc/elastic-step-ca/config/ca.json
 
 # Create the systemd service for the CA
-cat > /lib/systemd/system/elastic-step-ca.service << EOF
-[Unit]
-Description=elastic-step-ca service
-Documentation=https://smallstep.com/docs/step-ca
-Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-After=network-online.target
-Wants=network-online.target
-StartLimitIntervalSec=30
-StartLimitBurst=3
-ConditionFileNotEmpty=/etc/elastic-step-ca/config/ca.json
-ConditionFileNotEmpty=/etc/elastic-step-ca/password.txt
-
-[Service]
-Type=simple
-User=step
-Group=step
-Environment=STEPPATH=/etc/elastic-step-ca
-WorkingDirectory=/etc/elastic-step-ca
-ExecStart=/usr/bin/step-ca config/ca.json --password-file password.txt
-ExecReload=/bin/kill --signal HUP $MAINPID
-Restart=on-failure
-RestartSec=5
-TimeoutStopSec=30
-StartLimitInterval=30
-StartLimitBurst=3
-
-; Process capabilities & privileges
-AmbientCapabilities=CAP_NET_BIND_SERVICE
-CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-SecureBits=keep-caps
-NoNewPrivileges=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
+cp /vagrant/config/elastic-step-ca.service /lib/systemd/system/elastic-step-ca.service
 
 # Start the CA
 systemctl daemon-reload
@@ -259,29 +225,7 @@ systemctl enable caddy
 # Config and start Elasticsearch (we are also increasing the timeout for systemd to 500)
 mv /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.bak
 
-cat > /etc/elasticsearch/elasticsearch.yml << EOF
-# ======================== Elasticsearch Configuration =========================
-#
-# ----------------------------------- Paths ------------------------------------
-path.data: /var/lib/elasticsearch
-path.logs: /var/log/elasticsearch
-# ---------------------------------- Network -----------------------------------
-network.host: $IP_ADDR
-http.port: $ES_PORT
-# --------------------------------- Discovery ----------------------------------
-discovery.type: single-node
-# ----------------------------------- X-Pack -----------------------------------
-xpack.security.enabled: true
-xpack.security.transport.ssl.enabled: true
-xpack.security.transport.ssl.key: /etc/elasticsearch/certs/elasticsearch.key
-xpack.security.transport.ssl.certificate: /etc/elasticsearch/certs/elasticsearch.crt
-xpack.security.transport.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/root_ca.crt" ]
-xpack.security.http.ssl.enabled: true
-xpack.security.http.ssl.key: /etc/elasticsearch/certs/elasticsearch.key
-xpack.security.http.ssl.certificate: /etc/elasticsearch/certs/elasticsearch.crt
-xpack.security.http.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/root_ca.crt" ]
-xpack.security.authc.api_key.enabled: true
-EOF
+envsubst < /vagrant/config/elasticsearch.yml > /etc/elasticsearch/elasticsearch.yml
 
 sed -i 's/TimeoutStartSec=75/TimeoutStartSec=500/g' /lib/systemd/system/elasticsearch.service
 systemctl daemon-reload
@@ -295,26 +239,12 @@ systemctl enable elasticsearch
 grep "New value:" /root/Kibpass.txt | awk '{print $3}' | sudo /usr/share/kibana/bin/kibana-keystore add --stdin elasticsearch.password
 
 # Configure and start Kibana adding in the unique kibana_system keystore pass and generating the sec keys
-cat > /etc/kibana/kibana.yml << EOF
-# =========================== Kibana Configuration ============================
-# -------------------------------- Network ------------------------------------
-server.host: 0.0.0.0
-server.port: $K_PORT
-server.publicBaseUrl: "https://$DNS:$K_PORT_EXT"
-# ------------------------------ Elasticsearch --------------------------------
-elasticsearch.hosts: ["https://$IP_ADDR:$ES_PORT"]
-elasticsearch.username: "kibana_system"
-elasticsearch.password: "\${elasticsearch.password}"
-# ---------------------------------- Various -----------------------------------
-telemetry.enabled: false
-server.ssl.enabled: false
-elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/certs/root_ca.crt" ]
-elasticsearch.ssl.verificationMode: "none"
-# ---------------------------------- X-Pack ------------------------------------
-xpack.security.encryptionKey: "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')"
-xpack.encryptedSavedObjects.encryptionKey: "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')"
-xpack.reporting.encryptionKey: "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')"
-EOF
+
+export XPACK_ENC_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')
+export XPACK_SEC_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')
+export XPACK_REP_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32 ; echo '')
+export VARS_TO_SUBST='$K_PORT,$DNS,$K_PORT_EXT,$IP_ADDR,$ES_PORT,$XPACK_ENC_KEY,$XPACK_SEC_KEY,$XPACK_REP_KEY'
+envsubst "${VARS_TO_SUBST}" < /vagrant/config/kibana.yml > /etc/kibana/kibana.yml
 
 systemctl start kibana
 systemctl enable kibana

@@ -1,0 +1,18 @@
+# =========================== Kibana Configuration ============================
+# -------------------------------- Network ------------------------------------
+    server.host: 0.0.0.0
+    server.port: ${K_PORT}
+    server.publicBaseUrl: "https://${DNS}:${K_PORT_EXT}"
+    # ------------------------------ Elasticsearch --------------------------------
+    elasticsearch.hosts: ["https://${IP_ADDR}:${ES_PORT}"]
+    elasticsearch.username: "kibana_system"
+    elasticsearch.password: "${elasticsearch.password}"
+    # ---------------------------------- Various -----------------------------------
+    telemetry.enabled: false
+    server.ssl.enabled: false
+    elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/certs/root_ca.crt" ]
+    elasticsearch.ssl.verificationMode: "none"
+    # ---------------------------------- X-Pack ------------------------------------
+    xpack.security.encryptionKey: "${XPACK_ENC_KEY}"
+    xpack.encryptedSavedObjects.encryptionKey: "${XPACK_SEC_KEY}"
+    xpack.reporting.encryptionKey: "${XPACK_REP_KEY}"

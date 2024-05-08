@@ -1,0 +1,21 @@
+# ======================== Elasticsearch Configuration =========================
+#
+# ----------------------------------- Paths ------------------------------------
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+# ---------------------------------- Network -----------------------------------
+network.host: ${IP_ADDR}
+http.port: ${ES_PORT}
+# --------------------------------- Discovery ----------------------------------
+discovery.type: single-node
+# ----------------------------------- X-Pack -----------------------------------
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.key: /etc/elasticsearch/certs/elasticsearch.key
+xpack.security.transport.ssl.certificate: /etc/elasticsearch/certs/elasticsearch.crt
+xpack.security.transport.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/root_ca.crt" ]
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.key: /etc/elasticsearch/certs/elasticsearch.key
+xpack.security.http.ssl.certificate: /etc/elasticsearch/certs/elasticsearch.crt
+xpack.security.http.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/root_ca.crt" ]
+xpack.security.authc.api_key.enabled: true
