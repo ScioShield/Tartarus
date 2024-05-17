@@ -37,7 +37,7 @@ export K_PORT=5601
 export K_PORT_EXT=5443
 export ES_PORT=9200
 export F_PORT=8220
-export DNS=atomicfirefly-elastic
+export DNS=tartarus-elastic.home.arpa
 
 echo "$IP_ADDR $DNS" >> /etc/hosts
 echo "$IP_ADDR ca.$DNS" >> /etc/hosts
@@ -126,7 +126,7 @@ fi
 
 # Init the CA
 step ca init \
-  --name "Atomic Fire Fly Elastic CA" \
+  --name "Tartarus Elastic CA" \
   --dns "ca.${DNS}" \
   --address ":8443" \
   --provisioner "Elasticsearch" \
@@ -154,7 +154,7 @@ declare -A ips=( ["elasticsearch"]="${IP_ADDR}" ["fleet"]="${IP_ADDR}" )
 
 # Make the certs
 for instance in "${!ips[@]}"; do
-  step ca certificate --password-file "/vagrant/ca-password.txt" --provisioner Elasticsearch --not-after 8760h --san "${ips[$instance]}" --san atomicfirefly-elastic "$instance.$DNS" /tmp/certs/$instance.crt /tmp/certs/$instance.key --offline 
+  step ca certificate --password-file "/vagrant/ca-password.txt" --provisioner Elasticsearch --not-after 8760h --san "${ips[$instance]}" --san tartarus-elastic.home.arpa "$instance.$DNS" /tmp/certs/$instance.crt /tmp/certs/$instance.key --offline 
 done
 
 mkdir /etc/kibana/certs

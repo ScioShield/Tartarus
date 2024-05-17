@@ -1,5 +1,5 @@
-# AtomicFireFly
-AtomicFireFly, is designed to automate the process of deploying and testing security products. This solution consists of a single node ElasticSearch cluster on a Rocky8 Linux guest (for CentOS/RHEL cross compatibility). The Windows node features Sysmon, Elastic Agent, and Atomic Red Team. Additionally, a Kali Linux instance with Caldera pre-packaged ensures comprehensive testing and monitoring.  
+# Tartarus
+Tartarus (renamed from AtomicFireFly), is designed to automate the process of deploying and testing security products. This solution consists of a single node ElasticSearch cluster on a Rocky8 Linux guest (for CentOS/RHEL cross compatibility). The Windows node features Sysmon, Elastic Agent, and Atomic Red Team. Additionally, a Kali Linux instance with Caldera pre-packaged ensures comprehensive testing and monitoring.  
 
 ## Requirements (host)
 ### Hardware
@@ -18,10 +18,10 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 
 | VM Name               | Operating System                     | CPU Cores | Memory (MB) | Private IP     | Components                                                        |
 |-----------------------|--------------------------------------|-----------|-------------|----------------|-------------------------------------------------------------------|
-| atomicfirefly-elastic | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  | ElasticSearch, Kibana, Fleet                                      |
-| atomicfirefly-linux   | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
-| atomicfirefly-windows | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
-| atomicfirefly-kali    | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |  
+| tartarus-elastic      | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  | ElasticSearch, Kibana, Fleet, Smallstep CA, Caddy                 |
+| tartarus-linux        | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
+| tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
+| tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |  
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
@@ -105,29 +105,39 @@ Reprovisioning Kali will redownload Caldera every time as it doesn't go to the /
 `vagrant up kali --provision`  
 
 ### DNS settings
+We use `.home.arpa.` to conform with [RFC8375](https://www.rfc-editor.org/rfc/rfc8375.html)   
+#### Local 
+Replace (Vagrant host ip) with the IP of the host machine you will run Vagrant from  
+Windows Powershell  
+`Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "192.168.56.10 tartarus-elastic.home.arpa"`  
+Linux Bash  
+`echo "192.168.56.10 tartarus-elastic.home.arpa" >> /etc/hosts`  
+#### Remote
 Used for remote deployments
 Replace (Vagrant host ip) with the IP of the host machine you will run Vagrant from  
 Windows Powershell  
-`Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "(Vagrant host ip) atomicfirefly-elastic"`  
+`Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "(Vagrant host ip) tartarus-elastic.home.arpa"`  
 Linux Bash  
-`echo "(Vagrant host ip) atomicfirefly-elastic" >> /etc/hosts`  
+`echo "(Vagrant host ip) tartarus-elastic.home.arpa" >> /etc/hosts`  
 
 ## Kibana  
 It is safe to ignore the HTTPS certificate warning as we generated our own self-signed certs in this instance.  
-Log into Kibana (local)  
-From your host machine  
-`https://192.168.56.10:5601`  
-`https://127.0.0.1:5601`  
-Log into Kibana (remote)  
-`https://atomicfirefly-elastic:5601`  
+You can now add the generated CA certificate saved in ./certs/ to your browser trust store and you will never see a this site is insecure" again* for this project thanks to the Smallstep CA + Caddy ACME certificate setup  
+*The certs last 24 hours and sometimes Caddy (if you leave your host in hibernation for a while) the cert expires. A simple `sudo systemctl restart caddy` on the `tartarus-elastic` node and you'll be golden  
+**Log into Kibana (local)**  
+From your host machine   
+`https://tartarus-elastic.home.arpa:5443`  
+Must be via domain name now due to Caddy reverse proxy, just add an override in `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` to point `tartarus-elastic.home.arpa` to `192.168.56.10`
+**Log into Kibana (remote)**  
+`https://tartarus-elastic.home.arpa:5443`  
   
 Username: `elastic` 
-The password is in a file called "Password.txt" in the directory you ran Vagrant from,  
-this is the password to the Superuser account so be careful!  
+You can save the password in a file called "Password.txt" in the directory you ran Vagrant from, this is the password to the Superuser account so be careful!  
+The file is in `.gitignore` however it's not good practice to save passwords to disk!  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
 
 ## Viewing Kibana Alerts
-Once you have logged into the Kibana instance on `https://192.168.56.10:5601` or `https://atomicfirefly-elastic:5601` now it is time to view the alerts.  
+Once you have logged into the Kibana instance on `https://tartarus-elastic.home.arpa:5443` now it is time to view the alerts.  
 The Windows and Linux alerts are auto enabled for you.  
 Search for alerts in the universal search tab, or open the burger and scroll down to the security tab.  
 ![elasticAlert1](images/elasticAlert1.png "welcome")  
@@ -170,6 +180,10 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
 [Caldera](https://github.com/mitre/caldera)  
 [Elastic](https://github.com/elastic)
+[Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+[Sigma](https://github.com/SigmaHQ/sigma)
+[Caddy](https://github.com/caddyserver/caddy)
+[Smallstep](https://github.com/smallstep/certificates)
 
 ## TODO
 Look into how ART works on Linux  
@@ -177,7 +191,7 @@ Think about a config file to hold variables that all scripts can pull from, like
 ~~Think about password saving~~  
 Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects   
 Add Windows 2022 Server promoted to domain controller 
-Add the Auditd and Sysmon updates from Florin
+~~Add the Auditd and Sysmon updates from Florin~~
 
 ## Future improvements
 Add an Opnsense node  
