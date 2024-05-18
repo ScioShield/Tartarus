@@ -197,9 +197,9 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 Look into how ART works on Linux  
 Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc. Could be done with an improvised `.env` file and functions to export all vars local to each script?  
 ~~Think about password saving~~  
-Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects   
-Add Windows 2022 Server promoted to domain controller 
-~~Add the Auditd and Sysmon updates from Florin~~
+Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
+Add Windows 2022 Server promoted to domain controller  
+~~Add the Auditd and Sysmon updates from Florin~~  
 
 ## Future improvements
 Add an Opnsense node  
@@ -214,6 +214,7 @@ All licenses are valid at the time of commit !
 - Vagrant is licensed under [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)
 - VirtualBox is licensed under [The GNU General Public License (GPL) Version 3](https://www.virtualbox.org/wiki/GPLv3)
 - Rocky Linux is licensed under [BSD 3-Clause](https://rockylinux.org/legal/licensing)
+- Kali Linux is licensed under [EULA](https://www.kali.org/docs/policy/eula/EULA.txt)
 - Windows is licensed under [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
 - Elastic is licensed under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license)
 - EDR-Telemetry is unlicensed
