@@ -3,7 +3,7 @@ id: f279fad7-c452-4761-bd72-4367ed58c97c
 status: experimental
 description: Detects the enabling of the guest user account, which could be legitimate activity or a sign of privilege escalation activity
 author: Dylan Shield
-date: 2021/01/17
+date: 2024/05/06
 references:
     - https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4720
     - https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
