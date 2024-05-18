@@ -122,16 +122,16 @@ Linux Bash
 
 ## Kibana  
 It is safe to ignore the HTTPS certificate warning as we generated our own self-signed certs in this instance.  
-You can now add the generated CA certificate saved in ./certs/ to your browser trust store and you will never see a this site is insecure" again* for this project thanks to the Smallstep CA + Caddy ACME certificate setup  
-*The certs last 24 hours and sometimes Caddy (if you leave your host in hibernation for a while) the cert expires. A simple `sudo systemctl restart caddy` on the `tartarus-elastic` node and you'll be golden  
+You can now add the generated CA certificate `root_ca.crt` saved in ./certs/ to your browser trust store and you will never see a this site is insecure" again* for this project thanks to the Smallstep CA + Caddy ACME certificate setup.  
+*The certs last 24 hours and sometimes (if you leave your host in hibernation for a while) the cert expires before Caddy redoes the ACME process. A simple `sudo systemctl restart caddy` on the `tartarus-elastic` node and you'll be golden.  
 **Log into Kibana (local)**  
 From your host machine   
 `https://tartarus-elastic.home.arpa:5443`  
-Must be via domain name now due to Caddy reverse proxy, just add an override in `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` to point `tartarus-elastic.home.arpa` to `192.168.56.10`
+Must be via domain name now due to Caddy reverse proxy, just add an override in `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` to point `tartarus-elastic.home.arpa` to `192.168.56.10`  
 **Log into Kibana (remote)**  
 `https://tartarus-elastic.home.arpa:5443`  
   
-Username: `elastic` 
+Username: `elastic`  
 You can save the password in a file called "Password.txt" in the directory you ran Vagrant from, this is the password to the Superuser account so be careful!  
 The file is in `.gitignore` however it's not good practice to save passwords to disk!  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
@@ -182,16 +182,16 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 
 ## Resources
 ### TryHackMe
-[Atomic Red Team](https://tryhackme.com/room/atomicredteam)  
-[Elastic](https://tryhackme.com/room/investigatingwithelk101)  
+- [Atomic Red Team](https://tryhackme.com/room/atomicredteam)  
+- [Elastic](https://tryhackme.com/room/investigatingwithelk101)  
 ### GitHub
-[EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
-[Caldera](https://github.com/mitre/caldera)  
-[Elastic](https://github.com/elastic)
-[Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
-[Sigma](https://github.com/SigmaHQ/sigma)
-[Caddy](https://github.com/caddyserver/caddy)
-[Smallstep](https://github.com/smallstep/certificates)
+- [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
+- [Caldera](https://github.com/mitre/caldera)  
+- [Elastic](https://github.com/elastic)
+- [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+- [Sigma](https://github.com/SigmaHQ/sigma)
+- [Caddy](https://github.com/caddyserver/caddy)
+- [Smallstep](https://github.com/smallstep/certificates)
 
 ## TODO
 Look into how ART works on Linux  
@@ -210,7 +210,7 @@ Look into a cloud deployment mode of Elastic like I did in https://github.com/Sc
 ## Licenses
 **YOU ARE RESPONSIBLE FOR ENSURING YOU COMPLY WITH ALL APPLICABLE LICENSES, LOCAL AND/OR INTERNATIONAL LAW(S)!**  
 All licenses are valid at the time of commit !  
-- All original work in this project is licensed under [The Unlicense](https://github.com/ScioShield/Tartarus/blob/master/LICENSE.md)
+- All original work in this project (except the Sigma Rules) is licensed under [The Unlicense](https://github.com/ScioShield/Tartarus/blob/master/LICENSE.md)
 - Vagrant is licensed under [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)
 - VirtualBox is licensed under [The GNU General Public License (GPL) Version 3](https://www.virtualbox.org/wiki/GPLv3)
 - Rocky Linux is licensed under [BSD 3-Clause](https://rockylinux.org/legal/licensing)
@@ -220,7 +220,9 @@ All licenses are valid at the time of commit !
 - Caldera is licensed under the [Apache 2.0 License](https://github.com/mitre/caldera/blob/master/LICENSE)
 - Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
 - pySigma is licensed under [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
+- Sigma Rules are licensed under the [DRL 1.1](https://github.com/SigmaHQ/Detection-Rule-License/blob/main/LICENSE.Detection.Rules.md)
 - Caddy is licensed under [Apache License 2.0](https://github.com/caddyserver/caddy/blob/master/LICENSE)
-- Smallstep is licensed under [Apache License 2.0](https://github.com/smallstep/certificates/blob/master/LICENSE) 
+- Smallstep is licensed under [Apache License 2.0](https://github.com/smallstep/certificates/blob/master/LICENSE)  
+
 Supporting software (like bash, wget, jq, etc) are also licensed under their respective licenses.  
 Anything not directly mentioned above does of course retain it's license!  
