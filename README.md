@@ -146,6 +146,14 @@ Now search for "alerts".
 You should see the alerts page (Note you might not have any alerts yet, you'd need to start the Windows host and run the  EDR-Telemetry-Generator for example)  
 ![elasticAlert3](images/alerts.png "alert")
 
+## Loading Sigma Rules
+We make use of some existing Sigma rules, located in `./rules` as well I have written my own custom rules to detect Atomic Red Team activity. All rules are under DRL. 
+To load the custom rules replicate the `.env.example` as a `.env` file and delete everything after the values (so everything to the right and including the `#` so it's only key=value per line).  
+Have Python 3 installed.  
+Install the requirements with a little `python3 -m pip install -r requirements.txt` this will install pySigma needed to load the rules.  
+Run the `sigmaApiLoad.py` file with a little `python3 sigmaApiLoad.py`.  
+The rules in Elastic will start with `SIGMA -` so they are easy to find.  
+
 ## Atomic Red Team Tests
 Using the EDR-Telemetry-Generator from [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
 Open PowerShell and Git clone the EDR-Telemetry project and run it, Git is pre-installed for ease of use.  
@@ -198,3 +206,21 @@ Add an Opnsense node
 Add a Remnux/CSI Linux node  
 Use Ansible to provision all the nodes for true idempotence  
 Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
+
+## Licenses
+**YOU ARE RESPONSIBLE FOR ENSURING YOU COMPLY WITH ALL APPLICABLE LICENSES, LOCAL AND/OR INTERNATIONAL LAW(S)!**  
+All licenses are valid at the time of commit !  
+- All original work in this project is licensed under [The Unlicense](https://github.com/ScioShield/Tartarus/blob/master/LICENSE.md)
+- Vagrant is licensed under [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)
+- VirtualBox is licensed under [The GNU General Public License (GPL) Version 3](https://www.virtualbox.org/wiki/GPLv3)
+- Rocky Linux is licensed under [BSD 3-Clause](https://rockylinux.org/legal/licensing)
+- Windows is licensed under [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
+- Elastic is licensed under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license)
+- EDR-Telemetry is unlicensed
+- Caldera is licensed under the [Apache 2.0 License](https://github.com/mitre/caldera/blob/master/LICENSE)
+- Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
+- pySigma is licensed under [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
+- Caddy is licensed under [Apache License 2.0](https://github.com/caddyserver/caddy/blob/master/LICENSE)
+- Smallstep is licensed under [Apache License 2.0](https://github.com/smallstep/certificates/blob/master/LICENSE) 
+Supporting software (like bash, wget, jq, etc) are also licensed under their respective licenses.  
+Anything not directly mentioned above does of course retain it's license!  
