@@ -15,7 +15,7 @@ def SetupAPICredentials():
 
 
 def main():
-    es_url = "https://atomicfirefly-elastic:5443/api/alerting/rule/"
+    es_url = "https://tartarus-elastic.home.arpa:5443/api/alerting/rule/"
     headers = {
         "Content-Type": "application/json",
         "kbn-xsrf": "true",
