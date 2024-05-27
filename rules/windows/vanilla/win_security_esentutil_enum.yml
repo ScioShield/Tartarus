@@ -1,15 +1,17 @@
-title: WMI enumerated user privileges
-id: b88fd895-0039-4cb6-81f4-8e4324c9f349
+title: Esentutil enumerated user privileges
+id: 22d6ab0d-0ec2-4a7f-907b-d3a3962d66be
 related:
     - id: d21374ff-f574-44a7-9998-4a8c8bf33d7d
       type: similar
 status: experimental
-description: Detects the enumeration of user privileges using WMI, which could be legitimate activity or a sign of privilege escalation activity
+description: Detects the enumeration of user privileges using Esentutil, which could be legitimate activity or a sign of privilege escalation activity
 author: Dylan Shield
 date: 2024/04/28
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1003.002/T1003.002.md
 tags:
-    - attack.execution
-    - attack.t1047
+    - attack.credential_access
+    - attack.t1003.002
 logsource:
     product: windows
     service: security
@@ -19,13 +21,13 @@ detection:
             - 4798
             - 4799
         CallerProcessName|endswith:
-        - '\WmiPrvSE.exe'
+        - '\Esentutl.exe'
     selection_callerprocess_lowercase:
-        EventID:
+        EventID: 
             - 4798
             - 4799
         CallerProcessName|endswith:
-        - '\wmiprvse.exe'
+        - '\esentutl.exe'
     condition: 1 of selection_*
 falsepositives:
     - Legitimate administrative activity
