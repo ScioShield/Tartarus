@@ -2,7 +2,7 @@
   "policy_id": "${LINUX_POLICY_ID}",
   "package": {
     "name": "auditd",
-    "version": "3.11.0"
+    "version": "3.19.1"
   },
   "name": "auditd-1",
   "description": "",

@@ -26,12 +26,12 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
 # Add Elastic and Kibana and the Elastic Agents
 # Download and install Ealsticsearch and Kibana change ver to whatever you want
-# For me 8.12.0 is the latest we put it in /vagrant/apps to not download it again
+# For me 8.13.4 is the latest we put it in /vagrant/apps to not download it again
 # The -q flag is need to not spam stdout on the host machine
 # We also pull the SHA512 hashes for you to check
 
 # var settings
-export VER=8.12.0
+export VER=8.13.4
 export IP_ADDR=192.168.56.10
 export K_PORT=5601
 export K_PORT_EXT=5443
