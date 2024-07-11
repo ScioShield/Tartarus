@@ -1,5 +1,20 @@
 Vagrant.configure("2") do |config|
-  config.vm.define "elastic" do |elastic|
+  config.vm.define "opnsense", autostart: true do |opnsense|
+    opnsense.vm.box = "bento/freebsd-13.2"
+    opnsense.vm.hostname = 'tartarus-opnsense'
+    opnsense.vm.box_url = "bento/freebsd-13.2"
+    opnsense.ssh.shell = '/bin/sh'
+    opnsense.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
+    opnsense.vm.provision :shell, path: "OPBootstrap.sh"
+    opnsense.vm.network :private_network, ip: "192.168.56.2"
+    opnsense.vm.provider :virtualbox do |v|
+     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+     v.customize ["modifyvm", :id, "--cpus", 2]
+     v.customize ["modifyvm", :id, "--memory", 2048]
+     v.customize ["modifyvm", :id, "--name", "tartarus-opnsense"]
+    end
+  end
+  config.vm.define "elastic", autostart: true do |elastic|
     elastic.vm.box = "bento/rockylinux-8.7"
     elastic.vm.hostname = 'tartarus-elastic'
     elastic.vm.box_url = "bento/rockylinux-8.7"
@@ -51,21 +66,6 @@ Vagrant.configure("2") do |config|
      v.customize ["modifyvm", :id, "--cpus", 2]
      v.customize ["modifyvm", :id, "--memory", 4096]
      v.customize ["modifyvm", :id, "--name", "tartarus-kali"]
-    end
-  end
-  config.vm.define "opnsense", autostart: false do |opnsense|
-    opnsense.vm.box = "bento/freebsd-13.2"
-    opnsense.vm.hostname = 'tartarus-opnsense'
-    opnsense.vm.box_url = "bento/freebsd-13.2"
-    opnsense.ssh.shell = '/bin/sh'
-    opnsense.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
-    opnsense.vm.provision :shell, path: "OPBootstrap.sh"
-    opnsense.vm.network :private_network, ip: "192.168.56.2"
-    opnsense.vm.provider :virtualbox do |v|
-     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-     v.customize ["modifyvm", :id, "--cpus", 2]
-     v.customize ["modifyvm", :id, "--memory", 4096]
-     v.customize ["modifyvm", :id, "--name", "tartarus-opnsense"]
     end
   end
 end
