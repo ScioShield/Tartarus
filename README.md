@@ -21,7 +21,9 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 | tartarus-elastic      | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  | ElasticSearch, Kibana, Fleet, Smallstep CA, Caddy                 |
 | tartarus-linux        | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
 | tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
-| tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |  
+| tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |
+| tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 4096        | 192.168.56.2   | Opnsense, Suricata
+|  
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
@@ -40,24 +42,32 @@ There is an issue of it reassigning itself an IP after ~10 min, am investigating
 Please use as a guide / lab only, I do things like placing the elastic user password in a file  
 This should never be done in prod!  
 If an adversary gets you Elastic super-user password or root access to a node it is **GAME OVER!**  
+To ensure everything works as expected boot the Opnsense node first then the elastic node.  
 
 ## Setup  
 Bring up Elastic, Windows, Linux, Kali or all hosts with the following commands.  
 The Elastic cluster has to be started first if you want telemetry data!  
 
+### Opnsense
+**It is mandatory to run with the firewall node**  
+
+Opnsense gets built each time you run `vagrant up opnsense --provision` it is advised you only run the provision (will default to provision on first run) only once for Opnsense! Once it's installed running a simple `vagrant up opnsense` should only bring up the firewall.  
+
 ### Build
 Provisions the VMs ready for use.  
-#### Elastic + Windows  
-`vagrant up elastic windows`  
-#### Elastic + Linux  
-`vagrant up elastic linux`  
-#### Elastic + Linux + Windows
-`vagrant up elastic linux windows`  
-#### Elastic + Kali  
-`vagrant up elastic kali`  
-#### Elastic + Kali + Windows  
-`vagrant up elastic kali windows`  
+#### Opnsense + Elastic + Windows  
+`vagrant up windows`   
+#### Opnsense + Elastic + Linux  
+`vagrant up linux`  
+#### Opnsense + Elastic + Linux + Windows
+`vagrant up linux windows`  
+#### Opnsense + Elastic + Kali  
+`vagrant up kali`  
+#### Opnsense + Elastic + Kali + Windows  
+`vagrant up kali windows`  
 ### Login  
+#### Opnsense
+`vagrant ssh opnsense`  
 #### Elastic  
 `vagrant ssh elastic`  
 #### Linux  
@@ -85,6 +95,8 @@ All data is saved just shuts down the VM.
 `vagrant halt windows`  
 #### Kali  
 `vagrant halt kali`  
+#### Opnsense  
+`vagrant halt opnsense`
 
 ### Re-build
 Be careful here you will lose all data internal to each VM if you do this!  
@@ -103,6 +115,10 @@ Reprovisioning Windows will redownload Atomic Red Team every time as it doesn't 
 Reprovisioning Kali will redownload Caldera every time as it doesn't go to the /apps dir!  
 `vagrant destroy kali`  
 `vagrant up kali --provision`  
+#### Opnsense  
+Reprovisioning will reinstall Opnsense from scratch!  
+`vagrant destroy opnsense`  
+`vagrant up opnsense --provision`  
 
 ### DNS settings
 We use `.home.arpa.` to conform with [RFC8375](https://www.rfc-editor.org/rfc/rfc8375.html)   
@@ -120,9 +136,12 @@ Windows Powershell
 Linux Bash  
 `echo "(Vagrant host ip) tartarus-elastic.home.arpa" >> /etc/hosts`  
 
+## Opnsense  
+Once Opnsnese finishes installing you can log in by going to `https://192.168.56.2` follow the setup wizard. Once it's setup in a factory state we can setup the API user via clickops and run the provisioning script to load it into a state we want.  
+
 ## Kibana  
 It is safe to ignore the HTTPS certificate warning as we generated our own self-signed certs in this instance.  
-You can now add the generated CA certificate `root_ca.crt` saved in ./certs/ to your browser trust store and you will never see a this site is insecure" again* for this project thanks to the Smallstep CA + Caddy ACME certificate setup.  
+You can now add the generated CA certificate `root_ca.crt` saved in ./certs/ to your browser trust store and you will never see a "this site is insecure" again* for this project thanks to the Smallstep CA + Caddy ACME certificate setup.  
 *The certs last 24 hours and sometimes (if you leave your host in hibernation for a while) the cert expires before Caddy redoes the ACME process. A simple `sudo systemctl restart caddy` on the `tartarus-elastic` node and you'll be golden.  
 **Log into Kibana (local)**  
 From your host machine   
@@ -202,7 +221,7 @@ Add Windows 2022 Server promoted to domain controller
 ~~Add the Auditd and Sysmon updates from Florin~~  
 
 ## Future improvements
-Add an Opnsense node  
+~~Add an Opnsense node~~  
 Add a Remnux/CSI Linux node  
 Use Ansible to provision all the nodes for true idempotence  
 Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
@@ -211,19 +230,22 @@ Look into a cloud deployment mode of Elastic like I did in https://github.com/Sc
 **YOU ARE RESPONSIBLE FOR ENSURING YOU COMPLY WITH ALL APPLICABLE LICENSES, LOCAL AND/OR INTERNATIONAL LAW(S)!**  
 All licenses are valid at the time of commit !  
 - All original work in this project (except the Sigma Rules) is licensed under [The Unlicense](https://github.com/ScioShield/Tartarus/blob/master/LICENSE.md)
-- Vagrant is licensed under [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)
+- Vagrant is licensed under the [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)
 - VirtualBox is licensed under [The GNU General Public License (GPL) Version 3](https://www.virtualbox.org/wiki/GPLv3)
-- Rocky Linux is licensed under [BSD 3-Clause](https://rockylinux.org/legal/licensing)
-- Kali Linux is licensed under [EULA](https://www.kali.org/docs/policy/eula/EULA.txt)
-- Windows is licensed under [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
+- Rocky Linux is licensed under the [BSD 3-Clause](https://rockylinux.org/legal/licensing)
+- Kali Linux is licensed under the [EULA](https://www.kali.org/docs/policy/eula/EULA.txt)
+- Windows is licensed under the [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
 - Elastic is licensed under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license)
 - EDR-Telemetry is unlicensed
 - Caldera is licensed under the [Apache 2.0 License](https://github.com/mitre/caldera/blob/master/LICENSE)
 - Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
-- pySigma is licensed under [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
+- pySigma is licensed under the [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
 - Sigma Rules are licensed under the [DRL 1.1](https://github.com/SigmaHQ/Detection-Rule-License/blob/main/LICENSE.Detection.Rules.md)
-- Caddy is licensed under [Apache License 2.0](https://github.com/caddyserver/caddy/blob/master/LICENSE)
-- Smallstep is licensed under [Apache License 2.0](https://github.com/smallstep/certificates/blob/master/LICENSE)  
+- Caddy is licensed under the [Apache License 2.0](https://github.com/caddyserver/caddy/blob/master/LICENSE)
+- Smallstep is licensed under the [Apache License 2.0](https://github.com/smallstep/certificates/blob/master/LICENSE)  
+- Opnsense is licensed under the [BSD 2-Clause “Simplified” license](https://docs.opnsense.org/legal.html#opnsense-license-copyright)  
+- Opnsense Vagrant config file is licensed under the [BSD-2-Clause license](https://github.com/punktDe/vagrant-opnsense/blob/main/COPYRIGHT.md)
+- FreeBSD is licensed under the [FreeBSD License](https://www.freebsd.org/copyright/freebsd-license/)
 
 Supporting software (like bash, wget, jq, etc) are also licensed under their respective licenses.  
-Anything not directly mentioned above does of course retain it's license!  
+Anything not directly mentioned above does, of course, retain its license!  
