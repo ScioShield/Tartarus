@@ -113,5 +113,5 @@ echo '#  Use `vagrant up` to start your OPNsense. #'
 echo '#   #'
 echo '#####################################################'
 
-# Shutdown the system
-shutdown -p now
+# Reboot the system
+shutdown -r now
