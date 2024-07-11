@@ -1,0 +1,55 @@
+{
+  "policy_id": "${FLEET_POLICY_ID}",
+  "package": {
+    "name": "pfsense",
+    "version": "1.19.1"
+  },
+  "name": "pfsense-1",
+  "description": "",
+  "namespace": "",
+  "inputs": {
+    "pfsense-udp": {
+      "enabled": true,
+      "streams": {
+        "pfsense.log": {
+          "enabled": true,
+          "vars": {
+            "syslog_host": "0.0.0.0",
+            "syslog_port": "5514",
+            "internal_networks": [
+              "private"
+            ],
+            "tz_offset": "local",
+            "tags": [
+              "pfsense",
+              "forwarded"
+            ],
+            "preserve_original_event": false,
+            "udp_options": "#read_buffer: 100MiB\n#max_message_size: 50KiB\n#timeout: 300s\n"
+          }
+        }
+      }
+    },
+    "pfsense-tcp": {
+      "enabled": false,
+      "streams": {
+        "pfsense.log": {
+          "enabled": false,
+          "vars": {
+            "syslog_host": "localhost",
+            "syslog_port": 9001,
+            "internal_networks": [
+              "private"
+            ],
+            "tz_offset": "local",
+            "tags": [
+              "pfsense",
+              "forwarded"
+            ],
+            "preserve_original_event": false
+          }
+        }
+      }
+    }
+  }
+}

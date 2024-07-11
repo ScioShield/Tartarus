@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 # This will only work on Rocky Linux (it has not been tested on other distros!)
 
+# Test if we can reach the opnsense firewall
+attempt=0
+until ping -c 1 192.168.56.2 > /dev/null 2>&1
+do
+    attempt=$((attempt+1))
+    if [ $attempt -ge 5 ]; then
+        echo "Device can't reach 192.168.56.2 (opnsense) after 5 attempts. Did you start the firewall first? Exiting..."
+        exit 1
+    fi
+    echo "192.168.56.2 (opnsense) is unreachable, still waiting..."
+    sleep 5
+done
+echo "The firewall is reachable!"
+
 # Test if the we can reach the internet to download packages
 attempt=0
 until curl --silent --head --fail https://www.google.com | grep -q "HTTP/.* 200"
@@ -317,6 +331,14 @@ curl --silent -XPUT \
  --header @/vagrant/config/headers.txt \
  --data @<(envsubst < /vagrant/config/fleet_integration_update_es_ip.json)
 
+# Add Opnsense Integration
+curl --silent -XPOST \
+  --user elastic:$E_PASS \
+  --output /root/OPid.txt \
+  --cacert /vagrant/certs/root_ca.crt \
+  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
+  --header @/vagrant/config/headers.txt \
+  --data @<(envsubst < /vagrant/config/opnsense_integration_add.json)
 
 # Create the Windows Policy
 curl --silent -XPOST \
@@ -455,6 +477,12 @@ for file in "/root/ESUpass.txt" "/root/Kibpass.txt" "/root/Ftoken.txt" "/root/FP
 do
     sudo rm -f "$file"
 done
+
+# VM Settings
+echo "Changing the default route to go via the firewall!"
+sed -i 's/DEFROUTE=yes/DEFROUTE=no/' /etc/sysconfig/network-scripts/ifcfg-eth0
+sed -i '/#VAGRANT-END/i GATEWAY=192.168.56.2' /etc/sysconfig/network-scripts/ifcfg-eth1
+service network restart
 
 echo "Go to https://$DNS:$K_PORT_EXT once you have updated your DNS settings in your hosts, hosts file!"
 echo "It must be https://$DNS:$K_PORT_EXT and must point to $IP_ADDR due to a reverse proxy being used"
