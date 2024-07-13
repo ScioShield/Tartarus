@@ -58,7 +58,6 @@ Vagrant.configure("2") do |config|
     kali.vm.box = "kalilinux/rolling"
     kali.vm.hostname = 'tartarus-kali'
     kali.vm.box_url = "kalilinux/rolling"
-    kali.vm.provision :shell, path: "KBootstrap.sh"
     kali.vm.network :private_network, ip: "192.168.56.129"
     kali.vm.network :forwarded_port, guest: 8888, host: 8888, host_ip: "0.0.0.0", id: "caldera", auto_correct: true
     kali.vm.provider :virtualbox do |v|
