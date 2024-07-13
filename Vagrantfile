@@ -100,6 +100,7 @@ Vagrant.configure("2") do |config|
     nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
     nmcli connection modify eth1 ipv4.route-metric 10
     nmcli connection up eth1
+    echo "    metric 100" >> /etc/network/interfaces
     SHELL
   end
 end
