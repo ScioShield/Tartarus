@@ -23,7 +23,7 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 | tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
 | tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |
 | tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 4096        | 192.168.56.2   | Opnsense, Suricata
-|  
+|
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
@@ -35,7 +35,8 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 | Adversaries          | 128+             |  
 
 The Kali instance gets such a high IP so if an Opnsense firewall is added Kali can be out of "homenet" with a /25 network.  
-There is an issue of it reassigning itself an IP after ~10 min, am investigating.  
+
+All hosts have static IP addresses assigned in the the Vagrant file. All hosts also have 2 interfaces, the first is the default NAT type that Vagrant needs to manage the VMs via SSH / winrm, the second interface is the statically assigned one. We "cost out" the first interface by some metic trickery, this doesn't disable the interface entirely so it is still possible to reach the outside, even if you enforce FW rules however for the most part the firewall rules are respected.
 
 ## Note
 **This is not for production!**  
@@ -214,7 +215,6 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 
 ## TODO
 Look into how ART works on Linux  
-Think about a config file to hold variables that all scripts can pull from, like hostname, IP_ADDR, VER, etc. Could be done with an improvised `.env` file and functions to export all vars local to each script?  
 ~~Think about password saving~~  
 Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
 Add Windows 2022 Server promoted to domain controller  
@@ -222,8 +222,6 @@ Add Windows 2022 Server promoted to domain controller
 
 ## Future improvements
 ~~Add an Opnsense node~~  
-Add a Remnux/CSI Linux node  
-Use Ansible to provision all the nodes for true idempotence  
 Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
 
 ## Licenses
