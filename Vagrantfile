@@ -7,6 +7,7 @@ Vagrant.configure("2") do |config|
     opnsense.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
     opnsense.vm.provision :shell, path: "OPBootstrap.sh"
     opnsense.vm.network :private_network, ip: "192.168.56.2"
+    opnsense.vm.network :private_network, ip: "192.168.56.254"
     opnsense.vm.provider :virtualbox do |v|
      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      v.customize ["modifyvm", :id, "--cpus", 2]
@@ -30,7 +31,7 @@ Vagrant.configure("2") do |config|
     elastic.vm.provision "shell", inline: <<-SHELL
       systemctl start NetworkManager
       systemctl enable NetworkManager
-      nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.10/24 gw4 192.168.56.2
+      nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.10/25 gw4 192.168.56.2
       nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
       nmcli connection modify eth1 ipv4.route-metric 10
       nmcli connection up eth1
@@ -46,19 +47,67 @@ Vagrant.configure("2") do |config|
     linux.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
-      v.customize ["modifyvm", :id, "--memory", 1024]
+      v.customize ["modifyvm", :id, "--memory", 4096]
       v.customize ["modifyvm", :id, "--name", "tartarus-linux"]
     end
     linux.vm.provision "shell", inline: <<-SHELL
     systemctl start NetworkManager
     systemctl enable NetworkManager
-    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.20/24 gw4 192.168.56.2
+    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.20/25 gw4 192.168.56.2
     nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
     nmcli connection modify eth1 ipv4.route-metric 10
     nmcli connection up eth1
   SHELL
     linux.vm.provision :shell, path: "ALBootstrap.sh"
   end
+
+  config.vm.define "ubuntu", autostart: false do |ubuntu|
+    ubuntu.vm.box = "bento/ubuntu-20.04"
+    ubuntu.vm.hostname = 'tartarus-ubuntu'
+    ubuntu.vm.box_url = "bento/ubuntu-20.04"
+    
+    # Configuring both NAT and private network interfaces
+    ubuntu.vm.network :private_network, ip: "192.168.56.21", netmask: "255.255.255.128"
+    
+    ubuntu.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--cpus", 1]
+      v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ["modifyvm", :id, "--name", "tartarus-linux"]
+    end
+    
+    # Provisioning script using Netplan
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      
+      # Create Netplan configuration
+cat > /etc/netplan/01-netcfg.yaml << EOF
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      dhcp4: no
+      addresses:
+        - 192.168.56.21/25
+      gateway4: 192.168.56.2
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 1.0.0.1
+      routes:
+        - to: default
+          via: 192.168.56.2
+          metric: 10
+EOF
+      # Apply Netplan configuration
+      sudo netplan apply
+    SHELL
+    
+    # Additional provisioning script
+    ubuntu.vm.provision :shell, path: "ALBootstrap.sh"
+  end
+  
 
   config.vm.define "windows", autostart: false do |windows|
     windows.vm.box = "gusztavvargadr/windows-10-21h2-enterprise"
@@ -73,7 +122,7 @@ Vagrant.configure("2") do |config|
     end
     windows.vm.provision "shell", privileged: true, inline: <<-SHELL
       $interfaceIndexEth2 = (Get-NetAdapter -Name 'Ethernet 2').InterfaceIndex
-      New-NetIPAddress -InterfaceIndex $interfaceIndexEth2 -IPAddress 192.168.56.30 -PrefixLength 24 -DefaultGateway 192.168.56.2
+      New-NetIPAddress -InterfaceIndex $interfaceIndexEth2 -IPAddress 192.168.56.30 -PrefixLength 25 -DefaultGateway 192.168.56.2
       Set-DnsClientServerAddress -InterfaceIndex $interfaceIndexEth2 -ServerAddresses "1.1.1.1", "1.0.0.1"
       $interfaceIndexEth1 = (Get-NetAdapter -Name 'Ethernet').InterfaceIndex
       route change 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1
@@ -96,11 +145,12 @@ Vagrant.configure("2") do |config|
     kali.vm.provision "shell", inline: <<-SHELL
     systemctl start NetworkManager
     systemctl enable NetworkManager
-    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.129/24 gw4 192.168.56.2
+    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.129/25 gw4 192.168.56.254
     nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
     nmcli connection modify eth1 ipv4.route-metric 10
     nmcli connection up eth1
     echo "    metric 100" >> /etc/network/interfaces
+    systemctl restart networking.service
     SHELL
   end
 end
