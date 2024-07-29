@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
       v.customize ["modifyvm", :id, "--memory", 4096]
-      v.customize ["modifyvm", :id, "--name", "tartarus-linux"]
+      v.customize ["modifyvm", :id, "--name", "tartarus-ubuntu"]
     end
     
     # Provisioning script using Netplan
@@ -138,8 +138,8 @@ EOF
     kali.vm.network :forwarded_port, guest: 8888, host: 8888, host_ip: "0.0.0.0", id: "caldera", auto_correct: true
     kali.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--cpus", 2]
-      v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ["modifyvm", :id, "--cpus", 4]
+      v.customize ["modifyvm", :id, "--memory", 8192]
       v.customize ["modifyvm", :id, "--name", "tartarus-kali"]
     end
     kali.vm.provision "shell", inline: <<-SHELL
