@@ -233,7 +233,7 @@ All licenses are valid at the time of commit !
 - Rocky Linux is licensed under the [BSD 3-Clause](https://rockylinux.org/legal/licensing)
 - Kali Linux is licensed under the [EULA](https://www.kali.org/docs/policy/eula/EULA.txt)
 - Windows is licensed under the [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
-- Elastic is licensed under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license)
+- Elastic is licensed under the [GNU Affero General Public License v3.0](https://github.com/elastic/elasticsearch/blob/main/LICENSE.txt)
 - EDR-Telemetry is unlicensed
 - Caldera is licensed under the [Apache 2.0 License](https://github.com/mitre/caldera/blob/master/LICENSE)
 - Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
