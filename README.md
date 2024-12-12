@@ -22,8 +22,7 @@ You don't have to bring up all systems at once, if you are just testing Windows 
 | tartarus-linux        | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
 | tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
 | tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |
-| tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 4096        | 192.168.56.2   | Opnsense, Suricata
-|
+| tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 4096        | 192.168.56.2   | Opnsense, Suricata                                                |  
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
@@ -219,9 +218,11 @@ Look into how ART works on Linux
 Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
 Add Windows 2022 Server promoted to domain controller  
 ~~Add the Auditd and Sysmon updates from Florin~~  
+Add a Shuffle SOAR node  
 
 ## Future improvements
 ~~Add an Opnsense node~~  
+Think about adding an Ansible node  
 Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
 
 ## Licenses
