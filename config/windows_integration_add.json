@@ -2,7 +2,7 @@
   "policy_id": "${WINDOWS_POLICY_ID}",
   "package": {
     "name": "windows",
-    "version": "1.44.5"
+    "version": "2.3.6"
   },
   "name": "windows-1",
   "description": "",

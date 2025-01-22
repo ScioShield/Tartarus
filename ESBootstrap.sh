@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # This will only work on Rocky Linux (it has not been tested on other distros!)
+# Add back Bash Strict Mode
+#set -euo pipefail
 
 # Test if we can reach the opnsense firewall
 attempt=0
@@ -35,17 +37,17 @@ yum install -y unzip wget jq
 # Get the GPG key temp work around is to reenable SHA1 support for GPG keys, will update when Elastic move to 256/512
 # Run this when done
 # update-crypto-policies --set DEFAULT
-update-crypto-policies --set DEFAULT:SHA1
+#$(update-crypto-policies --set LEGACY || true)
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
 # Add Elastic and Kibana and the Elastic Agents
 # Download and install Ealsticsearch and Kibana change ver to whatever you want
-# For me 8.13.4 is the latest we put it in /vagrant/apps to not download it again
+# For me 8.17.1 is the latest we put it in /vagrant/apps to not download it again
 # The -q flag is need to not spam stdout on the host machine
 # We also pull the SHA512 hashes for you to check
 
 # var settings
-export VER=8.13.4
+export VER=8.17.1
 export IP_ADDR=192.168.56.10
 export K_PORT=5601
 export K_PORT_EXT=5443
@@ -74,7 +76,7 @@ download_and_verify_smallstep() {
   checksum_url=$(dirname "$url")/checksums.txt
   wget -nc -q "$checksum_url" -O "${dest_dir}/checksums-${file_name}.txt"
 
-  pushd "$dest_dir" > /dev/null
+  pushd "$dest_dir" &> /dev/null
 
   # Verify the checksum
   grep "${file_name}" "checksums-${file_name}.txt" | sha256sum -c -
@@ -83,9 +85,9 @@ download_and_verify_smallstep() {
     return 1
   else
     echo "Checksum verified for ${file_name}"
+    popd &> /dev/null
+    return 0
   fi
-
-  popd > /dev/null
 }
 
 download_and_verify_smallstep "https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.rpm" "/vagrant/apps"
@@ -109,8 +111,9 @@ download_and_verify_elastic() {
     return 1
   else
     echo "Checksum verified for ${file_name}"
+    popd &> /dev/null
+    return 0
   fi
-  popd > /dev/null
 }
 
 download_and_verify_elastic "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VER-x86_64.rpm" "/vagrant/apps"

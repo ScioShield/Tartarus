@@ -2,7 +2,7 @@
 # This will only work on Centos 7 (it has not been tested on other distros)
 echo "192.168.56.10 tartarus-elastic.home.arpa" >> /etc/hosts
 # unpack the agent
-tar -xf /vagrant/apps/elastic-agent-8.13.4-linux-x86_64.tar.gz -C /opt/
+tar -xf /vagrant/apps/elastic-agent-8.17.1-linux-x86_64.tar.gz -C /opt/
 
 # Check if Kibana is reachable 
 kcheck=$(curl -L --silent --output /dev/null --cacert /vagrant/certs/root_ca.crt -XGET 'https://tartarus-elastic.home.arpa:5443' --write-out %{http_code})
@@ -14,7 +14,7 @@ done
 echo "Kibana is reachable"
 
 # Install the agent
-sudo /opt/elastic-agent-8.13.4-linux-x86_64/elastic-agent install -f \
+sudo /opt/elastic-agent-8.17.1-linux-x86_64/elastic-agent install -f \
   --url=https://tartarus-elastic.home.arpa:8220 \
   --enrollment-token=$(cat /vagrant/tokens/LAEtoken.txt) \
   --certificate-authorities=/vagrant/certs/root_ca.crt
