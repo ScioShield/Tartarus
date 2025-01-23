@@ -1,5 +1,5 @@
 .vagrant/*
 .vscode/*
-Password.txt
+[Pp]assword.txt
 .env
 ca-password.txt
