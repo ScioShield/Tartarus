@@ -47,13 +47,13 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 # We also pull the SHA512 hashes for you to check
 
 # var settings
-export VER=8.17.1
-export IP_ADDR=192.168.56.10
-export K_PORT=5601
-export K_PORT_EXT=5443
-export ES_PORT=9200
-export F_PORT=8220
-export DNS=tartarus-elastic.home.arpa
+export VER=$(grep -oE "^VER=(.*)" /vagrant/vars | cut -d "=" -f2)
+export IP_ADDR=$(grep -oE "^IP_ADDR=(.*)" /vagrant/vars | cut -d "=" -f2)
+export K_PORT=$(grep -oE "^K_PORT=(.*)" /vagrant/vars | cut -d "=" -f2)
+export K_PORT_EXT=$(grep -oE "^K_PORT_EXT=(.*)" /vagrant/vars | cut -d "=" -f2)
+export ES_PORT=$(grep -oE "^ES_PORT=(.*)" /vagrant/vars | cut -d "=" -f2)
+export F_PORT=$(grep -oE "^F_PORT=(.*)" /vagrant/vars | cut -d "=" -f2)
+export DNS=$(grep -oE "^DNS=(.*)" /vagrant/vars | cut -d "=" -f2)
 
 echo "$IP_ADDR $DNS" >> /etc/hosts
 echo "$IP_ADDR ca.$DNS" >> /etc/hosts
@@ -268,11 +268,24 @@ systemctl enable kibana
 
 # Var settings (has to happen after Elastic is installed)
 E_PASS=$(sudo grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}')
-#grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}' > /vagrant/Password.txt
+
+# Create the API user
+curl --silent -XPOST \
+  --user  elastic:$E_PASS \
+  --output /root/ESapikey.txt \
+  --cacert /vagrant/certs/root_ca.crt \
+  --url "https://$DNS:$ES_PORT/_security/api_key" \
+  --header @/vagrant/config/headers.txt \
+  --data @/vagrant/config/deployment_api_key.json
+
+# Get the API key
+jq --raw-output  '.encoded' /root/ESapikey.txt > /vagrant/keys/ESapikey.txt
+
+export API_KEY=$(cat /vagrant/keys/ESapikey.txt)
 
 # Test if Kibana is running
 echo "Testing if Kibana is online, could take some time, no more than 5 mins"
-until curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies" -H 'accept: application/json' -u elastic:$E_PASS | grep -q '"items":\[\]'
+until curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies" -H 'accept: application/json' -H "Authorization: ApiKey ${API_KEY}" | grep -q '"items":\[\]'
 do
     echo "Kibana starting, still waiting..."
     sleep 5
@@ -281,26 +294,24 @@ echo "Kibana online!"
 
 # Install all the prebuilt rules
 curl --silent -XPUT \
-  --user elastic:$E_PASS \
   --cacert /vagrant/certs/root_ca.crt \
-  --header @/vagrant/config/headers.txt \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules/prepackaged"
 
 # Make the Fleet token
 curl --silent -XPUT --url "https://$IP_ADDR:$ES_PORT/_security/service/elastic/fleet-server/credential/token/fleet-token-1" \
- --user elastic:$E_PASS \
- --output /root/Ftoken.txt \
- --cacert /vagrant/certs/root_ca.crt
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
+  --output /root/Ftoken.txt \
+  --cacert /vagrant/certs/root_ca.crt
 
-jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/tokens/Ftoken.txt
+ jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/tokens/Ftoken.txt
 
-# Add Fleet Policy
+ # Add Fleet Policy
 curl --silent -XPOST \
-  --user  elastic:$E_PASS \
   --output /root/FPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies?sys_monitoring=true" \
-  --header @/vagrant/config/headers.txt \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --data @/vagrant/config/fleet_policy_add.json
 
 jq --raw-output '.item.id' /root/FPid.txt > /vagrant/keys/FPid.txt
@@ -309,151 +320,40 @@ export FLEET_POLICY_ID=$(cat /vagrant/keys/FPid.txt)
 
 # Add Fleet Integration
 curl --silent -XPOST \
-  --user elastic:$E_PASS \
   --output /root/FIid.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @/vagrant/config/headers.txt \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --data @<(envsubst < /vagrant/config/fleet_integration_add.json)
 
 jq --raw-output '.item.id' /root/FIid.txt > /vagrant/keys/FIid.txt
 
 # Add host IP and yaml settings to Fleet API
 curl --silent -XPUT \
- --user elastic:$E_PASS \
- --cacert /vagrant/certs/root_ca.crt \
- --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/FIid.txt)" \
- --header @/vagrant/config/headers.txt \
- --data @<(envsubst < /vagrant/config/fleet_integration_update_ip.json)
+  --cacert /vagrant/certs/root_ca.crt \
+  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/FIid.txt)" \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
+  --data @<(envsubst < /vagrant/config/fleet_integration_update_ip.json) > /dev/null
 
-# Add host IP and yaml settings to Fleet API
+  # Add host IP and yaml settings to Fleet API
  curl --silent -XPUT \
- --user elastic:$E_PASS \
  --cacert /vagrant/certs/root_ca.crt \
  --url "https://$DNS:$K_PORT_EXT/api/fleet/outputs/fleet-default-output" \
- --header @/vagrant/config/headers.txt \
- --data @<(envsubst < /vagrant/config/fleet_integration_update_es_ip.json)
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
+ --data @<(envsubst < /vagrant/config/fleet_integration_update_es_ip.json) > /dev/null
 
-# Add Opnsense Integration
+ # Add Opnsense Integration
 curl --silent -XPOST \
-  --user elastic:$E_PASS \
   --output /root/OPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @/vagrant/config/headers.txt \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --data @<(envsubst < /vagrant/config/opnsense_integration_add.json)
 
-# Create the Windows Policy
+  # Enable all Windows and Linux default alerts (must have the pipe to dev null or it will spam STDOUT)
 curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/WPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies?sys_monitoring=true" \
-  --header @/vagrant/config/headers.txt \
-  --data @/vagrant/config/windows_policy_add.json
-
-jq --raw-output '.item.id' /root/WPid.txt > /vagrant/keys/WPid.txt
-
-export WINDOWS_POLICY_ID=$(cat /vagrant/keys/WPid.txt)
-
-# Create the Linux Policy
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/LPid.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies?sys_monitoring=true" \
-  --header @/vagrant/config/headers.txt \
-  --data @/vagrant/config/linux_policy_add.json
-
-jq --raw-output '.item.id' /root/LPid.txt > /vagrant/keys/LPid.txt
-
-export LINUX_POLICY_ID=$(cat /vagrant/keys/LPid.txt)
-
-# Add Windows Integration
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/WIid.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @/vagrant/config/headers.txt \
-  --data @<(envsubst < /vagrant/config/windows_integration_add.json)
-
-jq --raw-output '.item.id' /root/WIid.txt > /vagrant/keys/WIid.txt
-
-# Add Custom Windows Event Logs - Windows Defender Logs
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/CWIid.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @/vagrant/config/headers.txt \
-  --data @<(envsubst < /vagrant/config/windows_integration_update_defender_logs.json)
-
-# Create the Windows Elastic Defender Intigration 
-curl -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/WEDI.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @<(envsubst < /vagrant/config/windows_integration_defender_add.json)
-
-jq --raw-output '.item.id' /root/WEDI.txt > /vagrant/keys/WEDIid.txt
-
-jq 'del(.item.id, .item.revision, .item.created_at, .item.created_by, .item.updated_at, .item.updated_by) | .item' /root/WEDI.txt > /root/WEDI_out.txt
-
-jq '.inputs[0].config.policy.value.windows.malware.mode = "detect" |
-.inputs[0].config.policy.value.mac.malware.mode = "detect" |
-.inputs[0].config.policy.value.linux.malware.mode = "detect" |
-.inputs[0].config.policy.value.windows.antivirus_registration.enabled = "true"' /root/WEDI_out.txt > /root/WEDI_in.txt
-
-# Update the Windows Elastic Defender Intigration to detect mode
-curl --silent -XPUT \
-  --user elastic:$E_PASS \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/WEDIid.txt)" \
-  --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @/root/WEDI_in.txt
-
-# Add Linux Auditd Integration
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/LIid.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @/vagrant/config/headers.txt \
-  --data @<(envsubst < /vagrant/config/linux_integration_auditd_add.json)
-
-jq --raw-output '.item.id' /root/LIid.txt > /vagrant/keys/LIid.txt
-
-# Create the Linux Elastic Defender Intigration 
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --output /root/LEDI.txt \
-  --cacert /vagrant/certs/root_ca.crt \
-  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
-  --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @<(envsubst < /vagrant/config/linux_integration_defender_add.json)
-
-jq --raw-output '.item.id' /root/LEDI.txt > /vagrant/keys/LEDIid.txt
-
-jq 'del(.item.id, .item.revision, .item.created_at, .item.created_by, .item.updated_at, .item.updated_by) | .item' /root/LEDI.txt > /root/LEDI_out.txt
-
-jq '.inputs[0].config.policy.value.windows.malware.mode = "detect" |
-.inputs[0].config.policy.value.mac.malware.mode = "detect" |
-.inputs[0].config.policy.value.linux.malware.mode = "detect"' /root/LEDI_out.txt > /root/LEDI_in.txt
-
-# Update the Linux Elastic Defender Intigration to detect mode
-curl --silent --user elastic:$E_PASS -XPUT "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/LEDIid.txt)" \
-  --cacert /vagrant/certs/root_ca.crt \
-  --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @/root/LEDI_in.txt
-
-# Enable all Windows and Linux default alerts (must have the pipe to dev null or it will spam STDOUT)
-curl --silent -XPOST \
-  --user elastic:$E_PASS \
-  --cacert /vagrant/certs/root_ca.crt \
-  --header @/vagrant/config/headers.txt \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules/_bulk_action" \
   --data '{
   "query": "alert.attributes.tags: \"OS: Windows\" OR alert.attributes.tags: \"OS: Linux\"",
@@ -470,39 +370,8 @@ sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https:/
  --fleet-server-cert=/etc/pki/fleet/fleet.crt \
  --fleet-server-cert-key=/etc/pki/fleet/fleet.key
 
-# Get the Windows policy id
-curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/enrollment_api_keys" -H 'accept: application/json' -u elastic:$E_PASS | sed -e "s/\},{/'\n'/g" -e "s/items/'\n'/g" | grep -E -m1 $(cat /vagrant/keys/WPid.txt) | grep -oP '[a-zA-Z0-9\=]{40,}' > /vagrant/tokens/WAEtoken.txt
-# Get the Linux policy id
-curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/enrollment_api_keys" -H 'accept: application/json' -u elastic:$E_PASS | sed -e "s/\},{/'\n'/g" -e "s/items/'\n'/g" | grep -E -m1 $(cat /vagrant/keys/LPid.txt) | grep -oP '[a-zA-Z0-9\=]{40,}' > /vagrant/tokens/LAEtoken.txt
-
-# Cleanup
-for file in "/root/ESUpass.txt" "/root/Kibpass.txt" "/root/Ftoken.txt" "/root/FPid.txt" "/root/FIid.txt" "/root/WPid.txt" "/root/LPid.txt" "/root/WIid.txt" "/root/CWIid.txt" "/root/WEDI.txt" "/root/WEDI_out.txt" "/root/WEDI_in.txt" "/root/LIid.txt" "/root/LEDI.txt" "/root/LEDI_out.txt" "/root/LEDI_in.txt"
-do
-    sudo rm -f "$file"
-done
-
 # VM Settings
 echo "Changing the default route to go via the firewall!"
 sed -i 's/DEFROUTE=yes/DEFROUTE=no/' /etc/sysconfig/network-scripts/ifcfg-eth0
 sed -i '/#VAGRANT-END/i GATEWAY=192.168.56.2' /etc/sysconfig/network-scripts/ifcfg-eth1
 service network restart
-
-echo "Go to https://$DNS:$K_PORT_EXT once you have updated your DNS settings in your hosts, hosts file!"
-echo "It must be https://$DNS:$K_PORT_EXT and must point to $IP_ADDR due to a reverse proxy being used"
-echo "Just going to the IP address won't work!"
-echo "Username: elastic"
-echo "Password: $(echo $E_PASS)"
-echo "SAVE THE PASSWORD!!!"
-echo "If you didn't save this password you can reset the Elastic user password with this command"
-echo "on the elastic guest:"
-echo "sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic"
-echo "The CA cert is in certs/"
-echo "You can add the CA to your host device trust store"
-echo "On Linux you can use the command:"
-echo "sudo cp ./certs/root_ca.crt /usr/local/share/ca-certificates/ && sudo update-ca-certificates"
-echo "On Windows you can use the command:"
-echo "certutil -addstore -f Root ./certs/root_ca.crt"
-echo "And also add it to your browser trust store!"
-echo "Tokens are saved in tokens/"
-echo "To enroll Windows agents use this token: $(cat /vagrant/tokens/WAEtoken.txt)"
-echo "To enroll Linux agents use this token: $(cat /vagrant/tokens/LAEtoken.txt)"

@@ -1,0 +1,21 @@
+{
+    "name": "deployment-api-key",
+    "role_descriptors": {
+      "role-name": {
+        "cluster": ["all"],
+        "index": [
+          {
+            "names": ["*"],
+            "privileges": ["all"]
+          }
+        ],
+        "applications": [
+            {
+              "application": "kibana-.kibana",
+              "privileges": ["all"],
+              "resources": ["*"]
+            }
+          ]
+      }
+    }
+  }

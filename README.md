@@ -1,6 +1,17 @@
 # Tartarus
 Tartarus (renamed from AtomicFireFly), is designed to automate the process of deploying and testing security products. This solution consists of a single node ElasticSearch cluster on a Rocky8 Linux guest (for CentOS/RHEL cross compatibility). The Windows node features Sysmon, Elastic Agent, and Atomic Red Team. Additionally, a Kali Linux instance with Caldera pre-packaged ensures comprehensive testing and monitoring.  
 
+## Note
+I'm changing the layout of this project to be easier to maintain and try use Git to the fullest. During this time things might get strange and not work properly. :)
+
+### The Plan
+
+Have a master branch that contains the default infra for the SIEM, i.e. the Elastic Stack in a secure setup, and the Opnsense firewall. However the other hosts will be in branches from main for example
+
+![GitGraph](images/GitGraph.png "GitGraph")
+
+The custom configurations will reside in each branch.
+
 ## Requirements (host)
 ### Hardware
 RAM - 17 GB  

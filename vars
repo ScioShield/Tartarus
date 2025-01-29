@@ -1,0 +1,7 @@
+VER=8.17.1
+IP_ADDR=192.168.56.10
+K_PORT=5601
+K_PORT_EXT=5443
+ES_PORT=9200
+F_PORT=8220
+DNS=tartarus-elastic.home.arpa

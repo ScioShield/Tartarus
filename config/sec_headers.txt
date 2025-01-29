@@ -7,3 +7,4 @@ Sec-Fetch-Mode: cors
 Sec-Fetch-Site: same-origin
 kbn-version: ${VER}
 kbn-xsrf: reporting
+Authorization: ApiKey ${API_KEY}
