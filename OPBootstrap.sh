@@ -24,6 +24,40 @@ sh ./opnsense-bootstrap.sh -r $opnsense_release -y
 sed -i '' -e 's/mismatch0/em1/' /usr/local/etc/config.xml
 sed -i '' -e 's/mismatch1/em0/' /usr/local/etc/config.xml
 
+# Update the subnet of LAN to a /26
+sed -i '' '/<lan>/,/<\/lan>/s/<subnet>[^<]*<\/subnet>/<subnet>26<\/subnet>/' /usr/local/etc/config.xml
+
+# Append the remaining interfaces
+cat > interface.xml << EOF
+    <opt1>
+      <if>em2</if>
+      <descr>Assets</descr>
+      <enable>1</enable>
+      <spoofmac/>
+      <ipaddr>192.168.56.65</ipaddr>
+      <subnet>26</subnet>
+    </opt1>
+    <opt2>
+      <if>em3</if>
+      <descr>Targets</descr>
+      <enable>1</enable>
+      <spoofmac/>
+      <ipaddr>192.168.56.129</ipaddr>
+      <subnet>26</subnet>
+    </opt2>
+    <opt3>
+      <if>em4</if>
+      <descr>Hackers</descr>
+      <enable>1</enable>
+      <spoofmac/>
+      <ipaddr>192.168.56.193</ipaddr>
+      <subnet>26</subnet>
+    </opt3>
+EOF
+
+# Append the remaining interfaces
+sed -i '' -e '/<interfaces>/r interface.xml' /usr/local/etc/config.xml
+
 # Remove IPv6 configuration from WAN
 sed -i '' -e '/<ipaddrv6>dhcp6<\/ipaddrv6>/d' /usr/local/etc/config.xml
 
@@ -52,24 +86,39 @@ sed -i '' -e '/<group>admins<\/group>/r ssh.xml' /usr/local/etc/config.xml
 cat > filter.xml << EOF
     <rule>
       <type>pass</type>
+      <interface>wan</interface>
       <ipprotocol>inet</ipprotocol>
       <statetype>keep state</statetype>
-      <descr>Allow SSH on all interfaces</descr>
       <direction>in</direction>
-      <floating>yes</floating>
       <quick>1</quick>
       <protocol>tcp</protocol>
       <source>
         <any>1</any>
       </source>
       <destination>
-        <any>1</any>
+        <network>(self)</network>
         <port>22</port>
+      </destination>
+    </rule>
+    <rule>
+      <type>pass</type>
+      <interface>wan</interface>
+      <ipprotocol>inet</ipprotocol>
+      <statetype>keep state</statetype>
+      <direction>in</direction>
+      <quick>1</quick>
+      <protocol>tcp</protocol>
+      <source>
+        <any>1</any>
+      </source>
+      <destination>
+        <network>(self)</network>
+        <port>443</port>
       </destination>
     </rule>
 EOF
 
-# Allow SSH on all interfaces
+# Insert the rule into OPNsense config.xml
 sed -i '' -e '/<filter>/r filter.xml' /usr/local/etc/config.xml
 
 # Do not block private networks on WAN
@@ -107,10 +156,12 @@ chgrp -R nobody /usr/home/vagrant
 
 # Display helpful message for the user
 echo '#####################################################'
-echo '#   #'
+echo '#                                                   #'
 echo '#  OPNsense provisioning finished - shutting down.  #'
-echo '#  Use `vagrant up` to start your OPNsense. #'
-echo '#   #'
+echo '#  Use `vagrant up opnsense --provision`            #'
+echo '#  to start your OPNsense.                          #'
+echo '#  !!!!!The Provision is mandatory!!!!!             #'
+echo '#                                                   #'
 echo '#####################################################'
 
 # Reboot the system

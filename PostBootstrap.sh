@@ -12,7 +12,7 @@ export DNS=$(grep -oE "^DNS=(.*)" /vagrant/vars | cut -d "=" -f2)
 E_PASS=$(sudo grep "generated password for the elastic" /root/ESUpass.txt | awk '{print $11}')
 
 echo "Go to https://$DNS:$K_PORT_EXT once you have updated your DNS settings in your hosts, hosts file!"
-echo "It must be https://$DNS:$K_PORT_EXT and must point to $IP_ADDR due to a reverse proxy being used"
+echo "It must be https://$DNS:$K_PORT_EXT and must point to 127.0.0.1 due to a reverse proxy being used"
 echo "Just going to the IP address won't work!"
 echo "Username: elastic"
 echo "Password: $(echo $E_PASS)"

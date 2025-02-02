@@ -1,25 +1,71 @@
 # Tartarus
 Tartarus (renamed from AtomicFireFly), is designed to automate the process of deploying and testing security products. This solution consists of a single node ElasticSearch cluster on a Rocky8 Linux guest (for CentOS/RHEL cross compatibility). The Windows node features Sysmon, Elastic Agent, and Atomic Red Team. Additionally, a Kali Linux instance with Caldera pre-packaged ensures comprehensive testing and monitoring.  
 
-## Note
-I'm changing the layout of this project to be easier to maintain and try use Git to the fullest. During this time things might get strange and not work properly. :)
-
-### The Plan
-
-Have a master branch that contains the default infra for the SIEM, i.e. the Elastic Stack in a secure setup, and the Opnsense firewall. However the other hosts will be in branches from main for example
-
-![GitGraph](images/GitGraph.png "GitGraph")
-
-The custom configurations will reside in each branch.
-
 ## Requirements (host)
 ### Hardware
-RAM - 17 GB  
-CPU - 9 Cores*  
-Storage - 50 GB  
-*Most modern CPUs have "virtual cores" so if you have 4 physical cores you'll have 8 virtual.  
-RAM and Core count can be tweaked in the Vagrantfile.  
-You don't have to bring up all systems at once, if you are just testing Windows 12 GB of RAM and 6 CPU Cores (3 physical) is enough.  
+#### SIEM only
+The default deployment `vagrant up` will deploy only the Elastic SIEM and Opnsense firewall for testing.  
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
+
+##### Total
+RAM: 9GB  
+CPU: 6
+
+##### Diagram
+
+![Elastic_Diagram_1](images/elasticdiagram1.png "Example 1 Simple SIEM")
+
+#### SIEM + Linux
+Deploy with `HOSTS=linux vagrant up opnsense elastic linux` will deploy the SIEM, firewall and a Linux host.  
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
+| tartarus-linux        | 2         | 2048        | 192.168.56.70  |
+
+##### Total
+RAM: 11GB  
+CPU: 8  
+
+##### Diagram
+
+![Elastic_Diagram_2](images/elasticdiagram2.png "Example 2 Simple SIEM with Linux asset")
+
+#### SIEM + Windows
+Deploy with `HOSTS=windows vagrant up opnsense elastic windows` will deploy the SIEM, firewall and a Windows host.  
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
+| tartarus-linux        | 2         | 4096        | 192.168.56.80  |
+
+##### Total
+RAM: 13GB  
+CPU: 8  
+
+##### Diagram
+
+![Elastic_Diagram_3](images/elasticdiagram3.png "Example 3 Simple SIEM with Windows asset")
+
+#### SIEM + Linux + Windows
+Deploy with `HOSTS=linwin vagrant up opnsense elastic linux windows` will deploy the SIEM, firewall, Linux and Windows.  
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
+| tartarus-linux        | 2         | 2048        | 192.168.56.70  |
+| tartarus-linux        | 2         | 4096        | 192.168.56.80  |
+
+##### Total
+RAM: 15GB  
+CPU: 10  
+
+##### Diagram
+
+![Elastic_Diagram_4](images/elasticdiagram4.png "Example 4 Simple SIEM with Linux and Windows asset")
 
 ### Software
 [VirtualBox](https://www.virtualbox.org/wiki/Downloads)  

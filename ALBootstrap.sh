@@ -1,21 +1,35 @@
 #!/usr/bin/env bash
 # This will only work on Centos 7 (it has not been tested on other distros)
-echo "192.168.56.10 tartarus-elastic.home.arpa" >> /etc/hosts
+
+# Var declarations
+export VER=$(grep -oE "^VER=(.*)" /vagrant/vars | cut -d "=" -f2)
+export IP_ADDR=$(grep -oE "^IP_ADDR=(.*)" /vagrant/vars | cut -d "=" -f2)
+export DNS=$(grep -oE "^DNS=(.*)" /vagrant/vars | cut -d "=" -f2)
+export ES_PORT=$(grep -oE "^ES_PORT=(.*)" /vagrant/vars | cut -d "=" -f2)
+export F_PORT=$(grep -oE "^F_PORT=(.*)" /vagrant/vars | cut -d "=" -f2)
+
+echo "${IP_ADDR} ${DNS}" >> /etc/hosts
 # unpack the agent
-tar -xf /vagrant/apps/elastic-agent-8.17.1-linux-x86_64.tar.gz -C /opt/
+tar -xf /vagrant/apps/elastic-agent-${VER}-linux-x86_64.tar.gz -C /opt/
 
 # Check if Kibana is reachable 
-kcheck=$(curl -L --silent --output /dev/null --cacert /vagrant/certs/root_ca.crt -XGET 'https://tartarus-elastic.home.arpa:5443' --write-out %{http_code})
-until [ $kcheck -eq 200 ]
+attempt=0
+kcheck=$(curl -L --silent --output /dev/null --cacert /vagrant/certs/root_ca.crt -XGET "https://${DNS}:${ES_PORT}" --write-out %{http_code})
+until [ $kcheck -eq 401 ]
 do
+  attempt=$((attempt+1))
+  if [ $attempt -ge 5 ]; then
+    echo "Device can't reach Kibana on port 5443 after 5 attempts. Exiting..."
+    exit 1
+  fi
   echo "Checking if Kibana is reachable, retrying..."
   sleep 5
 done
-echo "Kibana is reachable"
+echo "Elasticsearch is reachable"
 
 # Install the agent
-sudo /opt/elastic-agent-8.17.1-linux-x86_64/elastic-agent install -f \
-  --url=https://tartarus-elastic.home.arpa:8220 \
+sudo /opt/elastic-agent-${VER}-linux-x86_64/elastic-agent install -f \
+  --url=https://${DNS}:${F_PORT} \
   --enrollment-token=$(cat /vagrant/tokens/LAEtoken.txt) \
   --certificate-authorities=/vagrant/certs/root_ca.crt
 

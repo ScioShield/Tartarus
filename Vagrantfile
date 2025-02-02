@@ -5,20 +5,29 @@ Vagrant.configure("2") do |config|
     opnsense.vm.box_url = "bento/freebsd-13.2"
     opnsense.ssh.shell = '/bin/sh'
     opnsense.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
+    opnsense.vm.network "forwarded_port", guest: 443, host: 8443, auto_correct: true
+    opnsense.vm.provision "file", source: "OPBootstrap.sh", destination: "/tmp/OPBootstrap.sh"
+    opnsense.vm.provision "file", source: "config/firewall.php", destination: "/tmp/firewall.php"
     opnsense.vm.provision "shell", inline: <<-SHELL
-      if ! pkg info | grep -q opnsense; then
+      if ! /usr/local/sbin/pkg info | grep -q opnsense; then
         echo "OPNsense not installed. Running OPBootstrap.sh..."
-        sh /vagrant/OPBootstrap.sh
+        sh /tmp/OPBootstrap.sh
+      elif [ -e /conf/config.xml ] && [ ! -e /conf/configured ]; then
+        echo "OPNsense is already installed. Running config/firewall.php..."
+        php /tmp/firewall.php
+        touch /conf/configured
       else
-        echo "OPNsense is already installed. Skipping OPBootstrap.sh."
+        echo "OPNsense is already installed and configured."
       fi
     SHELL
-    opnsense.vm.network :private_network, ip: "192.168.56.2"
-    opnsense.vm.network :private_network, ip: "192.168.56.254"
+    opnsense.vm.network :private_network, ip: "192.168.56.2", virtualbox__intnet: "vboxnet0"
+    opnsense.vm.network :private_network, ip: "192.168.56.65", virtualbox__intnet: "vboxnet1"
+    opnsense.vm.network :private_network, ip: "192.168.56.129", virtualbox__intnet: "vboxnet2"
+    opnsense.vm.network :private_network, ip: "192.168.56.193", virtualbox__intnet: "vboxnet3"
     opnsense.vm.provider :virtualbox do |v|
      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      v.customize ["modifyvm", :id, "--cpus", 2]
-     v.customize ["modifyvm", :id, "--memory", 2048]
+     v.customize ["modifyvm", :id, "--memory", 1024]
      v.customize ["modifyvm", :id, "--name", "tartarus-opnsense"]
     end
   end
@@ -27,7 +36,7 @@ Vagrant.configure("2") do |config|
     elastic.vm.box = "bento/rockylinux-8.7"
     elastic.vm.hostname = 'tartarus-elastic'
     elastic.vm.box_url = "bento/rockylinux-8.7"
-    elastic.vm.network :private_network, ip: "192.168.56.10", auto_config: false
+    elastic.vm.network :private_network, ip: "192.168.56.10", auto_config: false, virtualbox__intnet: "vboxnet0"
     elastic.vm.network :forwarded_port, guest: 5443, host: 5443, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
     elastic.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -42,7 +51,7 @@ Vagrant.configure("2") do |config|
       # Check if the connection already exists
       if ! nmcli connection show eth1 >/dev/null 2>&1; then
         echo "Connection eth1 not found. Adding new connection."
-        nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.10/25 gw4 192.168.56.2
+        nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.10/26 gw4 192.168.56.2
         nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
         nmcli connection modify eth1 ipv4.route-metric 10
       else
@@ -119,7 +128,7 @@ Vagrant.configure("2") do |config|
     end
     elastic.trigger.before :destroy do |trigger|
       trigger.warn = "Removing all .txt files in keys/"
-      trigger.run = {inline: "rm -rf /vagrant/keys/*.txt"}
+      trigger.run_remote = {inline: "rm -rf /vagrant/keys/*.txt"}
     end
   end
 
@@ -127,11 +136,11 @@ Vagrant.configure("2") do |config|
     linux.vm.box = "bento/rockylinux-8.7"
     linux.vm.hostname = 'tartarus-linux'
     linux.vm.box_url = "bento/rockylinux-8.7"
-    linux.vm.network :private_network, ip: "192.168.56.20"
+    linux.vm.network :private_network, ip: "192.168.56.70", virtualbox__intnet: "vboxnet1"
     linux.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
-      v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ["modifyvm", :id, "--memory", 2048]
       v.customize ["modifyvm", :id, "--name", "tartarus-linux"]
     end
     linux.vm.provision "shell", inline: <<-SHELL
@@ -139,8 +148,8 @@ Vagrant.configure("2") do |config|
     systemctl enable NetworkManager
     if ! nmcli connection show eth1 >/dev/null 2>&1; then
       echo "Connection eth1 not found. Adding new connection."
-      nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.20/25 gw4 192.168.56.2
-      nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
+      nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.70/26 gw4 192.168.56.65
+      nmcli connection modify eth1 ipv4.dns "192.168.56.65"
       nmcli connection modify eth1 ipv4.route-metric 10
       nmcli connection up eth1
     else
@@ -163,12 +172,12 @@ Vagrant.configure("2") do |config|
     ubuntu.vm.box_url = "bento/ubuntu-20.04"
     
     # Configuring both NAT and private network interfaces
-    ubuntu.vm.network :private_network, ip: "192.168.56.21", netmask: "255.255.255.128"
+    ubuntu.vm.network :private_network, ip: "192.168.56.21", netmask: "255.255.255.192"
     
     ubuntu.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
-      v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ["modifyvm", :id, "--memory", 2028]
       v.customize ["modifyvm", :id, "--name", "tartarus-ubuntu"]
     end
     
@@ -185,15 +194,14 @@ network:
     eth1:
       dhcp4: no
       addresses:
-        - 192.168.56.21/25
-      gateway4: 192.168.56.2
+        - 192.168.56.21/26
+      gateway4: 192.168.56.65
       nameservers:
         addresses:
-          - 1.1.1.1
-          - 1.0.0.1
+          - 192.168.56.65
       routes:
         - to: default
-          via: 192.168.56.2
+          via: 192.168.56.65
           metric: 10
 EOF
       # Apply Netplan configuration
