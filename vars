@@ -5,3 +5,4 @@ K_PORT_EXT=5443
 ES_PORT=9200
 F_PORT=8220
 DNS=tartarus-elastic.home.arpa
+INT_AUDITD_VER=3.20.3
