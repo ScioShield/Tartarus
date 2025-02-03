@@ -21,49 +21,59 @@ do
 done
 echo "Kibana is reachable"
 
-# Create the Linux Policy
+# Create the Apache Linux Policy
 curl --silent -XPOST \
-  --output /root/LPid.txt \
+  --output /root/APACHELPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/agent_policies?sys_monitoring=true" \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
-  --data @/vagrant/config/linux_policy_add.json
+  --data @/vagrant/config/linux_policy_apache_add.json
 
-jq --raw-output '.item.id' /root/LPid.txt > /vagrant/keys/LPid.txt
+jq --raw-output '.item.id' /root/APACHELPid.txt > /vagrant/keys/APACHELPid.txt
 
-export LINUX_POLICY_ID=$(cat /vagrant/keys/LPid.txt)
+export LINUX_APACHE_POLICY_ID=$(cat /vagrant/keys/APACHELPid.txt)
 
 # Add Linux Auditd Integration
 curl --silent -XPOST \
-  --output /root/LIid.txt \
+  --output /root/APACHELIid.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
-  --data @<(envsubst < /vagrant/config/linux_integration_auditd_add.json)
+  --data @<(envsubst < /vagrant/config/linux_integration_apache_auditd_add.json)
 
-jq --raw-output '.item.id' /root/LIid.txt > /vagrant/keys/LIid.txt
+jq --raw-output '.item.id' /root/APACHELIid.txt > /vagrant/keys/APACHELIid.txt
+
+# Add Linux Apache Integration
+curl --silent -XPOST \
+  --output /root/APACHEAIid.txt \
+  --cacert /vagrant/certs/root_ca.crt \
+  --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
+  --header @<(envsubst < /vagrant/config/auth_headers.txt) \
+  --data @<(envsubst < /vagrant/config/linux_integration_apache_add.json)
+
+jq --raw-output '.item.id' /root/APACHEAIid.txt > /vagrant/keys/APACHEAIid.txt
 
 # Create the Linux Elastic Defender Intigration 
 curl --silent -XPOST \
-  --output /root/LEDI.txt \
+  --output /root/APACHELEDI.txt \
   --cacert /vagrant/certs/root_ca.crt \
   --url "https://$DNS:$K_PORT_EXT/api/fleet/package_policies" \
   --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @<(envsubst < /vagrant/config/linux_integration_defender_add.json)
+  --data @<(envsubst < /vagrant/config/linux_integration_apache_defender_add.json)
 
-jq --raw-output '.item.id' /root/LEDI.txt > /vagrant/keys/LEDIid.txt
+jq --raw-output '.item.id' /root/APACHELEDI.txt > /vagrant/keys/APACHELEDIid.txt
 
-jq 'del(.item.id, .item.revision, .item.created_at, .item.created_by, .item.updated_at, .item.updated_by) | .item' /root/LEDI.txt > /root/LEDI_out.txt
+jq 'del(.item.id, .item.revision, .item.created_at, .item.created_by, .item.updated_at, .item.updated_by) | .item' /root/APACHELEDI.txt > /root/APACHELEDI_out.txt
 
 jq '.inputs[0].config.policy.value.windows.malware.mode = "detect" |
 .inputs[0].config.policy.value.mac.malware.mode = "detect" |
-.inputs[0].config.policy.value.linux.malware.mode = "detect"' /root/LEDI_out.txt > /root/LEDI_in.txt
+.inputs[0].config.policy.value.linux.malware.mode = "detect"' /root/APACHELEDI_out.txt > /root/APACHELEDI_in.txt
 
 # Update the Linux Elastic Defender Intigration to detect mode
-curl --silent -XPUT "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/LEDIid.txt)" \
+curl --silent -XPUT "https://$DNS:$K_PORT_EXT/api/fleet/package_policies/$(cat /vagrant/keys/APACHELEDIid.txt)" \
   --cacert /vagrant/certs/root_ca.crt \
   --header @<(envsubst < /vagrant/config/sec_headers.txt) \
-  --data @/root/LEDI_in.txt > /dev/null
+  --data @/root/APACHELEDI_in.txt > /dev/null
 
-# Get the Linux policy id
-curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/enrollment_api_keys" -H 'accept: application/json' -H "Authorization: ApiKey ${API_KEY}" | sed -e "s/\},{/'\n'/g" -e "s/items/'\n'/g" | grep -E -m1 $(cat /vagrant/keys/LPid.txt) | grep -oP '[a-zA-Z0-9\=]{40,}' > /vagrant/tokens/LAEtoken.txt
+# Get the Linux Apache policy id
+curl --silent --cacert /vagrant/certs/root_ca.crt -XGET "https://$DNS:$K_PORT_EXT/api/fleet/enrollment_api_keys" -H 'accept: application/json' -H "Authorization: ApiKey ${API_KEY}" | sed -e "s/\},{/'\n'/g" -e "s/items/'\n'/g" | grep -E -m1 $(cat /vagrant/keys/APACHELPid.txt) | grep -oP '[a-zA-Z0-9\=]{40,}' > /vagrant/tokens/APACHELAEtoken.txt

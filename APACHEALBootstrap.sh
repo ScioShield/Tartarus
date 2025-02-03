@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This will only work on Centos 7 (it has not been tested on other distros)
+# This will only work on Ubuntu (it has not been tested on other distros)
 
 # Var declarations
 export VER=$(grep -oE "^VER=(.*)" /vagrant/vars | cut -d "=" -f2)
@@ -30,7 +30,7 @@ echo "Elasticsearch is reachable"
 # Install the agent
 sudo /opt/elastic-agent-${VER}-linux-x86_64/elastic-agent install -f \
   --url=https://${DNS}:${F_PORT} \
-  --enrollment-token=$(cat /vagrant/tokens/LAEtoken.txt) \
+  --enrollment-token=$(cat /vagrant/tokens/APACHELAEtoken.txt) \
   --certificate-authorities=/vagrant/certs/root_ca.crt
 
 # Download the audit.rules file
@@ -38,3 +38,6 @@ sudo curl  --silent --output /etc/audit/rules.d/audit.rules https://raw.githubus
 sudo chmod 0640 /etc/audit/rules.d/audit.rules
 
 echo "Please restart the system to apply the audit rules."
+
+# Install DVWA
+sudo bash -c "$(curl --fail --show-error --silent --location https://raw.githubusercontent.com/IamCarron/DVWA-Script/main/Install-DVWA.sh)"

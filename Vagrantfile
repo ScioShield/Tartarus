@@ -126,6 +126,21 @@ Vagrant.configure("2") do |config|
         fi
       SHELL
     end
+    if ENV['HOSTS'] == 'dvwa'
+      elastic.vm.provision "shell", inline: <<-SHELL
+        if ! systemctl is-active --quiet elasticsearch; then
+          echo "Elasticsearch service not running. Running ESBootstrap.sh and APACHELBootstrap.sh"
+          bash /vagrant/ESBootstrap.sh
+          bash /vagrant/PostBootstrap.sh
+          bash /vagrant/APACHELBootstrap.sh
+        elif [ ! -e /vagrant/keys/APACHELEDIid.txt ]; then
+          echo "Elasticsearch service is running. Installing Linux - Apache addons"
+          bash /vagrant/APACHELBootstrap.sh
+        else
+          echo "Elasticsearch service is running and Linux addons already installed"
+        fi
+      SHELL
+    end
     elastic.trigger.before :destroy do |trigger|
       trigger.warn = "Removing all .txt files in keys/"
       trigger.run_remote = {inline: "rm -rf /vagrant/keys/*.txt"}
@@ -166,23 +181,24 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  config.vm.define "ubuntu", autostart: false do |ubuntu|
-    ubuntu.vm.box = "bento/ubuntu-20.04"
-    ubuntu.vm.hostname = 'tartarus-ubuntu'
-    ubuntu.vm.box_url = "bento/ubuntu-20.04"
+  config.vm.define "dvwa", autostart: false do |dvwa|
+    dvwa.vm.box = "bento/ubuntu-20.04"
+    dvwa.vm.hostname = 'tartarus-dvwa'
+    dvwa.vm.box_url = "bento/ubuntu-20.04"
     
     # Configuring both NAT and private network interfaces
-    ubuntu.vm.network :private_network, ip: "192.168.56.21", netmask: "255.255.255.192"
+    dvwa.vm.network :private_network, ip: "192.168.56.71", virtualbox__intnet: "vboxnet1", auto_config: false
+    dvwa.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
     
-    ubuntu.vm.provider :virtualbox do |v|
+    dvwa.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
       v.customize ["modifyvm", :id, "--memory", 2028]
-      v.customize ["modifyvm", :id, "--name", "tartarus-ubuntu"]
+      v.customize ["modifyvm", :id, "--name", "tartarus-dvwa"]
     end
     
     # Provisioning script using Netplan
-    ubuntu.vm.provision "shell", inline: <<-SHELL
+    dvwa.vm.provision "shell", inline: <<-SHELL
       
       # Create Netplan configuration
 cat > /etc/netplan/01-netcfg.yaml << EOF
@@ -194,7 +210,7 @@ network:
     eth1:
       dhcp4: no
       addresses:
-        - 192.168.56.21/26
+        - 192.168.56.71/26
       gateway4: 192.168.56.65
       nameservers:
         addresses:
@@ -209,10 +225,10 @@ EOF
     SHELL
     
     # Additional provisioning script
-    ubuntu.vm.provision :shell,  inline: <<-SHELL
+    dvwa.vm.provision :shell,  inline: <<-SHELL
       if ! systemctl is-active --quiet elastic-agent; then
-        echo "Elastic Agent service not running. Running ALBootstrap.sh"
-        bash /vagrant/ALBootstrap.sh
+        echo "Elastic Agent service not running. Running APACHEALBootstrap.sh"
+        bash /vagrant/APACHEALBootstrap.sh
       else
         echo "Elastic Agent service is running"
       fi
@@ -271,8 +287,7 @@ SHELL
     kali.vm.box = "kalilinux/rolling"
     kali.vm.hostname = 'tartarus-kali'
     kali.vm.box_url = "kalilinux/rolling"
-    kali.vm.network :private_network, ip: "192.168.56.129", auto_config: false
-    kali.vm.network :forwarded_port, guest: 8888, host: 8888, host_ip: "0.0.0.0", id: "caldera", auto_correct: true
+    kali.vm.network :private_network, ip: "192.168.56.200", virtualbox__intnet: "vboxnet3", auto_config: false
     kali.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 4]
@@ -282,8 +297,8 @@ SHELL
     kali.vm.provision "shell", inline: <<-SHELL
     systemctl start NetworkManager
     systemctl enable NetworkManager
-    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.129/25 gw4 192.168.56.254
-    nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
+    nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.200/26 gw4 192.168.56.193
+    nmcli connection modify eth1 ipv4.dns "192.168.56.193"
     nmcli connection modify eth1 ipv4.route-metric 10
     nmcli connection up eth1
     echo "    metric 100" >> /etc/network/interfaces

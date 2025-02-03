@@ -1,10 +1,10 @@
 {
-  "policy_id": "${LINUX_POLICY_ID}",
+  "policy_id": "${LINUX_APACHE_POLICY_ID}",
   "package": {
     "name": "auditd",
     "version": "${INT_AUDITD_VER}"
   },
-  "name": "auditd-1",
+  "name": "auditd-2",
   "description": "",
   "namespace": "default",
   "inputs": {
