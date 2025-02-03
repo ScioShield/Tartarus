@@ -186,6 +186,19 @@ $rules = [
         "protocol" => "TCP",
         "destination_net" => "any",
         "destination_port" => "WebPorts"
+    ],
+    [
+        "action" => "pass",
+        "description" => "Allow SSH traffic",
+        "interface" => "opt3",
+        "ipprotocol" => "inet",
+        "statetype" => "keep state",
+        "direction" => "in",
+        "quick" => "0",
+        "source" => "any",
+        "protocol" => "TCP",
+        "destination_net" => "opt1",
+        "destination_port" => "22"
     ]
 ];
 
