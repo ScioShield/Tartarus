@@ -6,10 +6,10 @@ foreach ($line in $vars) {
 }
 
 # Add DNS for elastic
-Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "$IP_ADDR $DNS"
+Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "$env:IP_ADDR $env:DNS"
 
 # Unpack the archive
-Expand-Archive C:\vagrant\apps\elastic-agent-$VER-windows-x86_64.zip -DestinationPath 'C:\Program Files\'
+Expand-Archive C:\vagrant\apps\elastic-agent-$env:VER-windows-x86_64.zip -DestinationPath 'C:\Program Files\'
 Expand-Archive C:\vagrant\apps\Sysmon.zip -DestinationPath 'C:\Program Files\'
 
 # Add the defult AtomicRedTeam dir to Windows Defender Exclusions
@@ -20,7 +20,7 @@ Invoke-Expression (Invoke-WebRequest 'https://raw.githubusercontent.com/redcanar
 Install-AtomicRedTeam -getAtomics
 
 # Install the Elastic agent and Sysmon
-& 'C:\Program Files\elastic-agent-$VER-windows-x86_64\elastic-agent.exe' install -f --url=https://$DNS:$F_PORT --certificate-authorities='C:\vagrant\certs\root_ca.crt' --enrollment-token=$(Get-Content C:\vagrant\tokens\WAEtoken.txt)
+& "C:\Program Files\elastic-agent-$env:VER-windows-x86_64\elastic-agent.exe" install -f --url=https://${env:DNS}:${env:F_PORT} --certificate-authorities='C:\vagrant\certs\root_ca.crt' --enrollment-token=$(Get-Content C:\vagrant\tokens\WAEtoken.txt)
 & 'C:\Program Files\Sysmon64.exe' -accepteula -i
 
 $installer = "C:\vagrant\apps\Git-2.39.2-64-bit.exe"

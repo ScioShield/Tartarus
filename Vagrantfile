@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
     elastic.vm.box = "bento/rockylinux-8.7"
     elastic.vm.hostname = 'tartarus-elastic'
     elastic.vm.box_url = "bento/rockylinux-8.7"
-    elastic.vm.network :private_network, ip: "192.168.56.10", auto_config: false, virtualbox__intnet: "vboxnet0"
+    elastic.vm.network :private_network, ip: "192.168.56.10", virtualbox__intnet: "vboxnet0", auto_config: false
     elastic.vm.network :forwarded_port, guest: 5443, host: 5443, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
     elastic.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -136,7 +136,7 @@ Vagrant.configure("2") do |config|
     linux.vm.box = "bento/rockylinux-8.7"
     linux.vm.hostname = 'tartarus-linux'
     linux.vm.box_url = "bento/rockylinux-8.7"
-    linux.vm.network :private_network, ip: "192.168.56.70", virtualbox__intnet: "vboxnet1"
+    linux.vm.network :private_network, ip: "192.168.56.70", virtualbox__intnet: "vboxnet1", auto_config: false
     linux.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
@@ -224,7 +224,7 @@ EOF
     windows.vm.box = "gusztavvargadr/windows-10-21h2-enterprise"
     windows.vm.hostname = 'tartarus-windows'
     windows.vm.box_url = "gusztavvargadr/windows-10-21h2-enterprise"
-    windows.vm.network :private_network, ip: "192.168.56.30", auto_config: false
+    windows.vm.network :private_network, ip: "192.168.56.80", virtualbox__intnet: "vboxnet1", auto_config: false
     windows.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 2]
@@ -236,14 +236,14 @@ EOF
 
       $existingIP = Get-NetIPAddress -InterfaceIndex $interfaceIndexEth2 -ErrorAction SilentlyContinue
 
-      if ($existingIP -eq $null -or $existingIP.IPAddress -ne "192.168.56.30") {
+      if ($existingIP -eq $null -or $existingIP.IPAddress -ne "192.168.56.80") {
           Write-Host "Setting IP address for Ethernet 2..."
-          New-NetIPAddress -InterfaceIndex $interfaceIndexEth2 -IPAddress 192.168.56.30 -PrefixLength 25 -DefaultGateway 192.168.56.2
+          New-NetIPAddress -InterfaceIndex $interfaceIndexEth2 -IPAddress 192.168.56.80 -PrefixLength 26 -DefaultGateway 192.168.56.65
       } else {
           Write-Host "IP address already set. Skipping..."
       }
       
-      Set-DnsClientServerAddress -InterfaceIndex $interfaceIndexEth2 -ServerAddresses "1.1.1.1", "1.0.0.1"
+      Set-DnsClientServerAddress -InterfaceIndex $interfaceIndexEth2 -ServerAddresses "192.168.56.65"
       
       $interfaceIndexEth1 = (Get-NetAdapter -Name 'Ethernet').InterfaceIndex
       $routeExists = Get-NetRoute -DestinationPrefix "0.0.0.0/0" -InterfaceIndex $interfaceIndexEth1 -ErrorAction SilentlyContinue
