@@ -67,6 +67,23 @@ CPU: 10
 
 ![Elastic_Diagram_4](images/elasticdiagram4.png "Example 4 Simple SIEM with Linux and Windows asset")
 
+#### SIEM + Damn Vulnerable Web Application
+Deploy with `HOSTS=dvwa vagrant up opnsense elastic dvwa` will deploy the SEIM, firewall and the DVWA.
+Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8080` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
+| tartarus-dvwa         | 1         | 2048        | 192.168.56.71  |
+
+##### Total
+RAM: 11GB  
+CPU: 7  
+
+##### Diagram
+
+![Elastic_Diagram_5](images/elasticdiagram5.png "Example 5 Simple SIEM with DVWA")
+
 ### Software
 [VirtualBox](https://www.virtualbox.org/wiki/Downloads)  
 [Vagrant](https://developer.hashicorp.com/vagrant/downloads)  
@@ -302,6 +319,7 @@ All licenses are valid at the time of commit !
 - Opnsense is licensed under the [BSD 2-Clause “Simplified” license](https://docs.opnsense.org/legal.html#opnsense-license-copyright)  
 - Opnsense Vagrant config file is licensed under the [BSD-2-Clause license](https://github.com/punktDe/vagrant-opnsense/blob/main/COPYRIGHT.md)
 - FreeBSD is licensed under the [FreeBSD License](https://www.freebsd.org/copyright/freebsd-license/)
+- Damn Vulnerable Web Application (DVWA) is licensed under the [GPL-3.0 license](https://github.com/digininja/DVWA?tab=GPL-3.0-1-ov-file)
 
 Supporting software (like bash, wget, jq, etc) are also licensed under their respective licenses.  
 Anything not directly mentioned above does, of course, retain its license!  
