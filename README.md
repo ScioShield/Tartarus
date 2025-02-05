@@ -119,9 +119,29 @@ CPU: 7
 
 Firewall rules (will change in future so only used as a guide)  
 
+#### Diagram
+![Firewall_Mind_Map](images/firewallmindmap.png "Example Firewall rules as a mind map")
 
+#### Firewall Aliases
+| Name        | Type    | Content                                     | Description                |
+|------------|---------|----------------------------------------------|----------------------------|
+| RFC1918    | Network | 192.168.0.0/16, 172.16.0.0/12, 10.0.0.0/8    | RFC1918 Private Networks   |
+| WebPorts   | Port    | 80, 443                                      | Web Ports                  |
+| Services   | Port    | 53, 123                                      | DNS & NTP                  |
+| Monitoring | Port    | 8220, 9200                                   | Monitoring                 |
+| DHCP_Ports | Port    | 67, 68                                       | DHCP Ports                 |
 
-The Kali instance gets such a high IP so if an Opnsense firewall is added Kali can be out of "homenet" with a /25 network.  
+#### Firewall rules
+| Action | Quick | Description                   | Interface(s)    | Protocol | Source  | Destination | Dest. Port(s)               |
+|--------|-------|-------------------------------|-----------------|----------|---------|-------------|-----------------------------|
+| Pass   |  Yes  |  Allow DNS and NTP traffic    | Assets, Hackers | UDP      | Any     | (self)      | Services (53, 123)          |
+| Pass   |  Yes  |  Allow Elasticsearch traffic  | Assets, Targets | TCP      | Any     | LAN         | Monitoring (, 8220, 9200)   |
+| Block  |  No   |  Block all traffic to RFC1918 | Assets, Targets | Any      | Any     | RFC1918     | Any                         |
+| Pass   |  Yes  |  Allow DHCP traffic           | Targets         | UDP      | Any     | (self)      | DHCP_Ports (67, 68)         |
+| Pass   |  No   |  Allow web traffic            | Assets, Hackers | TCP      | Any     | Any         | WebPorts (80, 443)          |
+| Pass   |  Yes  |  Allow SSH traffic            | Hackers         | TCP      | Any     | LAN         | 22                          |
+| Pass   |  Yes  |  Allow HTTPS and SSH          | WAN             | TCP      | Any     | (self)      | 22, 443                     |
+| Pass   |  Yes  |  Allow All from LAN           | LAN             | ANY      | Any     | ANY         | ANY                         |
 
 All hosts have static IP addresses assigned in the the Vagrant file. All hosts also have 2 interfaces, the first is the default NAT type that Vagrant needs to manage the VMs via SSH / winrm, the second interface is the statically assigned one. We "cost out" the first interface by some metic trickery, this doesn't disable the interface entirely so it is still possible to reach the outside, even if you enforce FW rules however for the most part the firewall rules are respected.
 
@@ -132,90 +152,14 @@ This should never be done in prod!
 If an adversary gets you Elastic super-user password or root access to a node it is **GAME OVER!**  
 To ensure everything works as expected boot the Opnsense node first then the elastic node.  
 
-## Setup  
-Bring up Elastic, Windows, Linux, Kali or all hosts with the following commands.  
-The Elastic cluster has to be started first if you want telemetry data!  
-
-### Opnsense
-**It is mandatory to run with the firewall node**  
-
-Opnsense gets built each time you run `vagrant up opnsense --provision` it is advised you only run the provision (will default to provision on first run) only once for Opnsense! Once it's installed running a simple `vagrant up opnsense` should only bring up the firewall.  
-
-### Build
-Provisions the VMs ready for use.  
-#### Opnsense + Elastic + Windows  
-`vagrant up windows`   
-#### Opnsense + Elastic + Linux  
-`vagrant up linux`  
-#### Opnsense + Elastic + Linux + Windows
-`vagrant up linux windows`  
-#### Opnsense + Elastic + Kali  
-`vagrant up kali`  
-#### Opnsense + Elastic + Kali + Windows  
-`vagrant up kali windows`  
-### Login  
-#### Opnsense
-`vagrant ssh opnsense`  
-#### Elastic  
-`vagrant ssh elastic`  
-#### Linux  
-`vagrant ssh linux`  
-#### Windows  
-`vagrant ssh windows`  
-On Windows open RDP client and connect to `127.0.0.1:53389`  
-Username: vagrant  
-Password: vagrant  
-If you have `xfreerdp` installed on Linux (change /size to whatever you want, cert ignore is to dismiss the untrusted cert warning on first login, the 127.0.0.1 can also be changed to a remote address if needed)  
-`xfreerdp /u:"vagrant" /p:"vagrant" /v:127.0.0.1:53389 /size:1300x700 /cert:ignore`  
-#### Kali  
-Should popup with a GUI at first boot (remember to enable x11 if you are remote)  
-`vagrant ssh kali`  
-Username: vagrant  
-Password: vagrant  
-
-### Suspend
-All data is saved just shuts down the VM.  
-#### Elastic  
-`vagrant halt elastic`  
-#### Linux  
-`vagrant halt linux`  
-#### Windows  
-`vagrant halt windows`  
-#### Kali  
-`vagrant halt kali`  
-#### Opnsense  
-`vagrant halt opnsense`
-
-### Re-build
-Be careful here you will lose all data internal to each VM if you do this!  
-All main apps (Elasticsearch, Kibana, Agents, Sysmon, Go, Git except Caldera and Atomic Red Team) won't be redownloaded and are safe in the apps/ dir, however their configs and internal data like the Elasticsearch database, any custom Kibana dashboards, alerts, etc. will be deleted and reprovisioned. You have been warned!  
-#### Elastic  
-`vagrant destroy elastic`  
-`vagrant up elastic --provision`  
-#### Linux  
-`vagrant destroy linux`  
-`vagrant up linux --provision`  
-#### Windows  
-Reprovisioning Windows will redownload Atomic Red Team every time as it doesn't go to the /apps dir!  
-`vagrant destroy windows`  
-`vagrant up windows --provision`  
-#### Kali  
-Reprovisioning Kali will redownload Caldera every time as it doesn't go to the /apps dir!  
-`vagrant destroy kali`  
-`vagrant up kali --provision`  
-#### Opnsense  
-Reprovisioning will reinstall Opnsense from scratch!  
-`vagrant destroy opnsense`  
-`vagrant up opnsense --provision`  
-
 ### DNS settings
 We use `.home.arpa.` to conform with [RFC8375](https://www.rfc-editor.org/rfc/rfc8375.html)   
 #### Local 
 Replace (Vagrant host ip) with the IP of the host machine you will run Vagrant from  
 Windows Powershell  
-`Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "192.168.56.10 tartarus-elastic.home.arpa"`  
+`Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "127.0.0.1 tartarus-elastic.home.arpa"`  
 Linux Bash  
-`echo "192.168.56.10 tartarus-elastic.home.arpa" >> /etc/hosts`  
+`echo "127.0.0.1 tartarus-elastic.home.arpa" >> /etc/hosts`  
 #### Remote
 Used for remote deployments
 Replace (Vagrant host ip) with the IP of the host machine you will run Vagrant from  
@@ -225,7 +169,7 @@ Linux Bash
 `echo "(Vagrant host ip) tartarus-elastic.home.arpa" >> /etc/hosts`  
 
 ## Opnsense  
-Once Opnsnese finishes installing you can log in by going to `https://192.168.56.2` follow the setup wizard. Once it's setup in a factory state we can setup the API user via clickops and run the provisioning script to load it into a state we want.  
+Once Opnsnese finishes installing you can log in by going to `https://127.0.0.1:8443`. All the config is already done for you.  
 
 ## Kibana  
 It is safe to ignore the HTTPS certificate warning as we generated our own self-signed certs in this instance.  
@@ -234,7 +178,7 @@ You can now add the generated CA certificate `root_ca.crt` saved in ./certs/ to 
 **Log into Kibana (local)**  
 From your host machine   
 `https://tartarus-elastic.home.arpa:5443`  
-Must be via domain name now due to Caddy reverse proxy, just add an override in `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` to point `tartarus-elastic.home.arpa` to `192.168.56.10`  
+Must be via domain name now due to Caddy reverse proxy, just add an override in `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` to point `tartarus-elastic.home.arpa` to `127.0.0.1`  
 **Log into Kibana (remote)**  
 `https://tartarus-elastic.home.arpa:5443`  
   
@@ -271,18 +215,6 @@ It goes without saying but this should only be run on a VM, don't run it on your
 Now look at the Kibana alerts dashboard.  
 ![alerts](images/alerts.png "pow")
 
-## Caldera Tests
-Now start Caldera and log in.  
-`vagrant up kali` to start the Kali instance.  
-Bring up Caldera with `cd /opt/caldera/ && python3 server.py --insecure`  
-![calderaStart](images/calderaStart.png "kaboom")  
-Now log into Caldera `http://192.168.56.129:8888/`  
-If you have issues accessing it run `ifconfig eth1` in a new shell window and note down the IP results if different than the default and connect to that instead.  
-Username: red  
-Password: admin  
-![calderaLogin](images/calderaLogin.png "zap")  
-Now you can do the usual. I highly recommend the in platform training for a better understanding.  
-
 ## Inspirations
 The main inspiration for this work is from the incredible project [EDR-Telemetry](https://github.com/tsale/EDR-Telemetry)  
 The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://github.com/geerlingguy) excellent book Ansible for DevOps.  
@@ -302,16 +234,10 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 
 ## TODO
 Look into how ART works on Linux  
-~~Think about password saving~~  
-~~Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects~~  
 Add Windows 2022 Server promoted to domain controller  
-~~Add the Auditd and Sysmon updates from Florin~~  
 Add a Shuffle SOAR node  
 
 ## Future improvements
-~~Add an Opnsense node~~  
-Think about adding an Ansible node  
-Look into a cloud deployment mode of Elastic like I did in https://github.com/ScioShield/Elastic-Cloud-Agent for those who don't have 64GB RAM :) This will need two scrips (a .ps1 and a .sh) to do all the config and change the Vagrantfile. I'd rather provisioning happen on the host and the guest can be as isolated as needed.  
 
 ## Licenses
 **YOU ARE RESPONSIBLE FOR ENSURING YOU COMPLY WITH ALL APPLICABLE LICENSES, LOCAL AND/OR INTERNATIONAL LAW(S)!**  
