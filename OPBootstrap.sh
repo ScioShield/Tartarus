@@ -74,6 +74,40 @@ sed -i '' -e "s/192\.168\.1\.1</${virtual_machine_ip}</" /usr/local/etc/config.x
 lan_net=$(echo "${virtual_machine_ip}" | sed 's/\.[0-9]*$//')
 sed -i '' -e "s/192\.168\.1\./${lan_net}./" /usr/local/etc/config.xml
 
+# Add DHCP for OPT2
+cat > dhcp.xml << EOF
+  <dhcpd>
+    <lan>
+      <enable/>
+      <range>
+        <from>192.168.56.12</from>
+        <to>192.168.56.60</to>
+      </range>
+    </lan>
+    <opt2>
+      <enable>1</enable>
+      <gateway>192.168.56.129</gateway>
+      <ddnsdomainalgorithm>hmac-md5</ddnsdomainalgorithm>
+      <numberoptions>
+        <item/>
+      </numberoptions>
+      <range>
+        <from>192.168.56.130</from>
+        <to>192.168.56.190</to>
+      </range>
+      <winsserver/>
+      <dnsserver/>
+      <ntpserver/>
+    </opt2>
+  </dhcpd>
+EOF
+
+# Remove the DHCP config
+sed -i '' -e '/<dhcpd>/,/<\/dhcpd>/d' /usr/local/etc/config.xml
+
+# Append the DHCP config
+sed -i '' -e '/<\/interfaces>/r dhcp.xml' /usr/local/etc/config.xml
+
 # Create SSH file
 cat > ssh.xml << EOF
       <enabled>enabled</enabled>

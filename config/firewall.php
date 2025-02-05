@@ -125,8 +125,19 @@ $aliases = [
     [
         "name" => "Monitoring",
         "type" => "port",
-        "content" => "5443\n8220\n9200",
+        "content" => "8220\n9200",
         "description" => "Monitoring",
+        "proto" => "",
+        "categories" => "",
+        "updatefreq" => "",
+        "interface" => "",
+        "counters" => "0"
+    ],
+    [
+        "name" => "DHCP_Ports",
+        "type" => "port",
+        "content" => "67\n68",
+        "description" => "DHCP_Ports",
         "proto" => "",
         "categories" => "",
         "updatefreq" => "",
@@ -173,6 +184,19 @@ $rules = [
         "source_net" => "any",
         "destination_net" => "RFC1918",
         "log" => "1"
+    ],
+    [
+        "action" => "pass",
+        "description" => "Allow DHCP traffic",
+        "interface" => "opt2",
+        "ipprotocol" => "inet",
+        "statetype" => "keep state",
+        "direction" => "in",
+        "quick" => "1",
+        "source" => "any",
+        "protocol" => "UDP",
+        "destination_net" => "(self)",
+        "destination_port" => "DHCP_Ports"
     ],
     [
         "action" => "pass",

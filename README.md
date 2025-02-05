@@ -24,11 +24,11 @@ Deploy with `HOSTS=linux vagrant up opnsense elastic linux` will deploy the SIEM
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
-| tartarus-linux        | 2         | 2048        | 192.168.56.70  |
+| tartarus-linux        | 1         | 2048        | 192.168.56.70  |
 
 ##### Total
 RAM: 11GB  
-CPU: 8  
+CPU: 7  
 
 ##### Diagram
 
@@ -40,11 +40,11 @@ Deploy with `HOSTS=windows vagrant up opnsense elastic windows` will deploy the 
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
-| tartarus-linux        | 2         | 4096        | 192.168.56.80  |
+| tartarus-linux        | 1         | 4096        | 192.168.56.80  |
 
 ##### Total
 RAM: 13GB  
-CPU: 8  
+CPU: 7  
 
 ##### Diagram
 
@@ -57,11 +57,11 @@ Deploy with `HOSTS=linwin vagrant up opnsense elastic linux windows` will deploy
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 | tartarus-linux        | 2         | 2048        | 192.168.56.70  |
-| tartarus-linux        | 2         | 4096        | 192.168.56.80  |
+| tartarus-linux        | 1         | 4096        | 192.168.56.80  |
 
 ##### Total
 RAM: 15GB  
-CPU: 10  
+CPU: 9  
 
 ##### Diagram
 
@@ -92,20 +92,34 @@ CPU: 7
 
 | VM Name               | Operating System                     | CPU Cores | Memory (MB) | Private IP     | Components                                                        |
 |-----------------------|--------------------------------------|-----------|-------------|----------------|-------------------------------------------------------------------|
+| tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 1024        | 192.168.56.2   | Opnsense, Suricata                                                |
 | tartarus-elastic      | bento/rockylinux-8.7                 | 4         | 8192        | 192.168.56.10  | ElasticSearch, Kibana, Fleet, Smallstep CA, Caddy                 |
-| tartarus-linux        | bento/rockylinux-8.7                 | 1         | 1024        | 192.168.56.20  | Elastic Agent                                                     |
-| tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.30  | Elastic Agent, Sysmon, Atomic Red Team                            |
-| tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.129 | Caldera                                                           |
-| tartarus-opnsense     | bento/freebsd-13.2                   | 2         | 4096        | 192.168.56.2   | Opnsense, Suricata                                                |  
+| tartarus-linux        | bento/rockylinux-8.7                 | 1         | 2048        | 192.168.56.70  | Elastic Agent                                                     |
+| tartarus-dvwa         | bento/ubuntu                         | 1         | 2048        | 192.168.56.71  | Elastic Agent, DVWA                                               |
+| tartarus-windows      | gusztavvargadr/windows-10-21h2-enterprise | 2    | 4096        | 192.168.56.80  | Elastic Agent, Sysmon, Atomic Red Team                            |
+| tartarus-kali         | kalilinux/rolling                    | 2         | 4096        | 192.168.56.200 |                                                                   |
+
 
 ### IP Addresses 
 | Reserved for         | IP Address Range |
 |----------------------|------------------|
 | Networking           | 1-9              |
 | Security devices     | 10-19            |
-| Linux hosts          | 20-29            |
-| Windows hosts        | 30-39            |
-| Adversaries          | 128+             |  
+| Linux hosts          | 70-79            |
+| Windows hosts        | 80-89            |
+| Adversaries          | 200+             |
+
+### Full network layout
+| Network Address | Usable Range                    | Broadcast Address | Usage   |
+| --------------- | ------------------------------- | ----------------- | ------- |
+| 192.168.56.0    | 192.168.56.1 - 192.168.56.62    | 192.168.56.63     | SIEM    |
+| 192.168.56.64   | 192.168.56.65 - 192.168.56.126  | 192.168.56.127    | Assets  |
+| 192.168.56.128  | 192.168.56.129 - 192.168.56.190 | 192.168.56.191    | Targets |
+| 192.168.56.192  | 192.168.56.193 - 192.168.56.254 | 192.168.56.255    | Hackers |
+
+Firewall rules (will change in future so only used as a guide)  
+
+
 
 The Kali instance gets such a high IP so if an Opnsense firewall is added Kali can be out of "homenet" with a /25 network.  
 
@@ -289,7 +303,7 @@ The use of Vagrant as a provisioner was inspired by [Jeff Geerling's](https://gi
 ## TODO
 Look into how ART works on Linux  
 ~~Think about password saving~~  
-Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects  
+~~Add a new API call to create an API user and use that for all other curl authentications and then the API key can be shipped to other projects~~  
 Add Windows 2022 Server promoted to domain controller  
 ~~Add the Auditd and Sysmon updates from Florin~~  
 Add a Shuffle SOAR node  
@@ -310,7 +324,6 @@ All licenses are valid at the time of commit !
 - Windows is licensed under the [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
 - Elastic is licensed under the [GNU Affero General Public License v3.0](https://github.com/elastic/elasticsearch/blob/main/LICENSE.txt)
 - EDR-Telemetry is unlicensed
-- Caldera is licensed under the [Apache 2.0 License](https://github.com/mitre/caldera/blob/master/LICENSE)
 - Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
 - pySigma is licensed under the [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
 - Sigma Rules are licensed under the [DRL 1.1](https://github.com/SigmaHQ/Detection-Rule-License/blob/main/LICENSE.Detection.Rules.md)
