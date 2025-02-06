@@ -9,6 +9,8 @@ function generateApiSecret($secret) {
 }
 
 $xml = new DOMDocument();
+$xml->preserveWhiteSpace = false;
+$xml->formatOutput = true;
 $xml->load('/conf/config.xml');
 
 $xpath = new DOMXPath($xml);
@@ -21,6 +23,21 @@ if ($homenetNode) {
     echo "Updated IDS <homenet> successfully.\n";
 } else {
     echo "IDS <homenet> tag not found.\n";
+}
+
+$webguiQuery = "/opnsense/system/webgui";
+$webguiNode = $xpath->query($webguiQuery)->item(0);
+
+if ($webguiNode) {
+    // Create new <althostnames> node
+    $newNode = $xml->createElement("althostnames", "tartarus-opnsense.home.arpa");
+
+    // Append to the webgui node
+    $webguiNode->appendChild($newNode);
+
+    echo "Added new <althostnames> successfully.\n";
+} else {
+    echo "Node /opnsense/system/webgui not found.\n";
 }
 
 $query = "/opnsense/system/user[name='root']";
