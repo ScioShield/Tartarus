@@ -188,7 +188,7 @@ Vagrant.configure("2") do |config|
     
     # Configuring both NAT and private network interfaces
     dvwa.vm.network :private_network, ip: "192.168.56.71", virtualbox__intnet: "vboxnet1", auto_config: false
-    dvwa.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+    dvwa.vm.network "forwarded_port", guest: 80, host: 8180, auto_correct: true
     
     dvwa.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
