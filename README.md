@@ -13,7 +13,7 @@ The default deployment `vagrant up` will deploy only the Elastic SIEM and Opnsen
 
 ##### Total
 RAM: 9GB  
-CPU: 6
+CPU: 6  
 
 ##### Access SIEM
 To access you're newly created SIEM and firewall first add their DNS records to your hosts, `hosts` file  
@@ -153,12 +153,12 @@ Although we expose the default port `80` that the DVWA is served on to the host 
 | tartarus-kali         | 4         | 8192        | 192.168.56.200 |
 
 ##### Total
-**Recommended**
+**Recommended**  
 RAM: 19GB  
 CPU: 11  
 
 **Passable**  
-RAM: 13GB
+RAM: 13GB  
 CPU: 7  
 
 ##### Access Kali  
