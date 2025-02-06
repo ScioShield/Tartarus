@@ -70,9 +70,9 @@ sed -i '' -e '/<track6-prefix-id>0<\/track6-prefix-id>/d' /usr/local/etc/config.
 # Change OPNsense LAN IP addresses to VirtualBox compatible one
 sed -i '' -e "s/192\.168\.1\.1</${virtual_machine_ip}</" /usr/local/etc/config.xml
 
-# Change DHCP range to match LAN IP address
-lan_net=$(echo "${virtual_machine_ip}" | sed 's/\.[0-9]*$//')
-sed -i '' -e "s/192\.168\.1\./${lan_net}./" /usr/local/etc/config.xml
+# Change hostname
+sed -i '' -e "s/<hostname>OPNsense<\/hostname>/<hostname>tartarus-opnsense<\/hostname>/" /usr/local/etc/config.xml
+sed -i '' -e "s/<domain>localdomain<\/domain>/<domain>home.arpa<\/domain>/" /usr/local/etc/config.xml
 
 # Add DHCP for OPT2
 cat > dhcp.xml << EOF
