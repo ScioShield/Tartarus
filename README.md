@@ -165,7 +165,7 @@ CPU: 7
 
 **GUI**  
 
-**N.B.** The Kali host has the GUI enabled so it should pop up with the GUI whenever you boot the machine.
+**N.B.** The Kali host has the GUI enabled so it should pop up with the GUI whenever you boot the machine.  
 **N.B. 2** If 8GB of RAM is too much for your host to handle you can reduce the amount of memory Kali gets by changing the line `v.customize ["modifyvm", :id, "--memory", 8192]` near the bottom of the `Vagrantfile` to something like `v.customize ["modifyvm", :id, "--memory", 4096]` this will reduce the RAM by half, anything lower and the machine may become unstable. You can do the same for Elastic down to 6GB although it is not recommended! From `v.customize ["modifyvm", :id, "--memory", 8192]` to `v.customize ["modifyvm", :id, "--memory", 6144]` in the elastic part of the `Vagrantfile`. The same can be done to the CPUs each VM gets.  
 
 ![Kali_Access_GUI](images/KaliAccessGUI.png "Kali Access GUI")  
@@ -297,7 +297,7 @@ Username: `elastic`
 You can save the password in a file called "Password.txt" in the directory you ran Vagrant from, this is the password to the Superuser account so be careful!  
 The file is in `.gitignore` however it's not good practice to save passwords to disk!  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
-If you need to reset the password you can do it on the `elastic` node with a little:
+If you need to reset the password you can do it on the `elastic` node with a little:  
 **Linux**  
 ```bash
 vagrant ssh elastic
