@@ -142,10 +142,24 @@ Vagrant.configure("2") do |config|
       SHELL
     end
     elastic.trigger.before :destroy do |trigger|
-      trigger.warn = "Removing all .txt files in keys/"
-      trigger.run_remote = {inline: "rm -rf /vagrant/keys/*.txt"}
+      trigger.warn = "Removing all .txt files from the local keys/ directory"
+    
+      if Vagrant::Util::Platform.windows?
+        trigger.run = {
+          inline: "powershell -Command \"if ((Get-Location).Path -match '\\\\Tartarus$' -and (Test-Path keys)) { Remove-Item -Path keys\\*.txt -Force -ErrorAction SilentlyContinue }\""
+        }
+      else
+        trigger.run = {
+          inline: <<-SHELL
+            bash -c 'if [ "$(basename $(pwd))" = "Tartarus" ] && [ -d keys ]; then
+              rm -rf keys/*.txt
+            fi'
+          SHELL
+        }
+      end
     end
   end
+    
 
   config.vm.define "linux", autostart: false do |linux|
     linux.vm.box = "bento/rockylinux-8.7"
