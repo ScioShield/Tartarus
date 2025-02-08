@@ -5,18 +5,41 @@ Tartarus (renamed from AtomicFireFly), is designed to automate the process of de
 ### Hardware
 **N.B.** Modern CPUs have virtual cores so if your CPU has 4 cores then it will have 8 vCPU cores. The below tabes all represent vCPU cores required by the VMs.  
 #### SIEM only
-Deployment:
+Deployment (Default):  
 - Windows `$env:HOSTS = "elastic"; vagrant up opnsense; vagrant up opnsense elastic`  
 - Linux `vagrant up opnsense && HOSTS=elastic vagrant up opnsense elastic`  
 
+Deployment (Bluemin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "elastic"; vagrant up opnsense; vagrant up opnsense elastic`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=elastic vagrant up opnsense elastic`  
+
+##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 
-##### Total
-RAM: 9GB  
-CPU: 6  
+**Total**
+RAM: 9 GB  
+CPU: 6 vCores  
+
+##### Vagrantfile.bluemin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
+
+**Total bluemin**
+RAM: 7 GB  
+CPU: 3 vCores  
+
+##### Vagrantfile.red
+N/A  
+
+##### Vagrantfile.redmin
+N/A  
+
+
 
 ##### Access SIEM
 To access you're newly created SIEM and firewall first add their DNS records to your hosts, `hosts` file  
@@ -73,19 +96,42 @@ Verify access with a little `curl -L -k https://tartarus-opnsense.home.arpa:8443
 ![Elastic_Diagram_1](images/elasticdiagram1.png "Example 1 Simple SIEM")  
 
 #### SIEM + Linux
-Deployment:
+Deployment (Default):  
 - Windows `$env:HOSTS = "linux"; vagrant up opnsense; vagrant up opnsense elastic linux`  
 - Linux `vagrant up opnsense && HOSTS=linux vagrant up opnsense elastic linux`  
 
+Deployment (Bluemin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linux"; vagrant up opnsense; vagrant up opnsense elastic linux`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=linux vagrant up opnsense elastic linux`  
+
+##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 | tartarus-linux        | 1         | 2048        | 192.168.56.70  |
 
-##### Total
-RAM: 11GB  
-CPU: 7  
+**Total**  
+RAM: 11 GB  
+CPU: 7 vCores  
+
+##### Vagrantfile.bluemin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
+| tartarus-linux        | 1         | 1024        | 192.168.56.70  |
+
+**Total bluemin**  
+RAM: 8 GB  
+CPU: 4 vCores  
+
+##### Vagrantfile.red
+N/A  
+
+##### Vagrantfile.redmin
+N/A  
+
 
 ##### Access Linux
 Complete DNS settings from the above example.  
@@ -99,19 +145,41 @@ Complete DNS settings from the above example.
 ![Elastic_Diagram_2](images/elasticdiagram2.png "Example 2 Simple SIEM with Linux asset")  
 
 #### SIEM + Windows
-Deployment:
+Deployment (Default):  
 - Windows `$env:HOSTS = "windows"; vagrant up opnsense; vagrant up opnsense elastic windows`  
 - Linux `vagrant up opnsense && HOSTS=windows vagrant up opnsense elastic windows`  
 
+Deployment (Bluemin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "windows"; vagrant up opnsense; vagrant up opnsense elastic windows`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=windows vagrant up opnsense elastic windows`  
+
+##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 | tartarus-windows      | 2         | 4096        | 192.168.56.80  |
 
-##### Total
-RAM: 13GB  
-CPU: 8  
+**Total**
+RAM: 13 GB  
+CPU: 8 vCores  
+
+##### Vagrantfile.bluemin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
+| tartarus-windows      | 2         | 2048        | 192.168.56.80  |
+
+**Total bluemin**
+RAM: 9 GB  
+CPU: 5 vCores  
+
+##### Vagrantfile.red
+N/A  
+
+##### Vagrantfile.redmin
+N/A  
 
 ##### Access Windows
 Complete DNS settings from the top example.  
@@ -132,20 +200,43 @@ On Windows you can use the built in RDP client.
 ![Elastic_Diagram_3](images/elasticdiagram3.png "Example 3 Simple SIEM with Windows asset")  
 
 #### SIEM + Linux + Windows
-Deployment:
+Deployment (Default):  
 - Windows `$env:HOSTS = "linwin"; vagrant up opnsense; vagrant up opnsense elastic linux windows`  
 - Linux `vagrant up opnsense && HOSTS=linwin vagrant up opnsense elastic linux windows`  
 
+Deployment (Bluemin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linwin"; vagrant up opnsense; vagrant up opnsense elastic linux windows`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=linwin vagrant up opnsense elastic linux windows`  
+
+##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 | tartarus-windows      | 1         | 2048        | 192.168.56.70  |
-| tartarus-linux        | 2         | 4096        | 192.168.56.80  |
+| tartarus-linux        | 2         | 2048        | 192.168.56.80  |
 
-##### Total
-RAM: 15GB  
-CPU: 9  
+**Total**  
+RAM: 13 GB  
+CPU: 9 vCores  
+
+##### Vagrantfile.bluemin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
+| tartarus-windows      | 2         | 2048        | 192.168.56.70  |
+| tartarus-linux        | 1         | 1024        | 192.168.56.80  |
+
+**Total bluemin**  
+RAM: 10 GB  
+CPU: 6 vCores  
+
+##### Vagrantfile.red
+N/A  
+
+##### Vagrantfile.redmin
+N/A  
 
 ##### Access
 Follow the guides above for access to any of the guests.  
@@ -155,12 +246,25 @@ Follow the guides above for access to any of the guests.
 ![Elastic_Diagram_4](images/elasticdiagram4.png "Example 4 Simple SIEM with Linux and Windows asset")  
 
 #### SIEM + Damn Vulnerable Web Application + Kali
-Deployment:
+Deployment (Default):  
 - Windows `$env:HOSTS = "dvwa"; vagrant up opnsense; vagrant up opnsense elastic dvwa kali`  
 - Linux `vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
 
+Deployment (Bluemin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "dvwa"; vagrant up opnsense; vagrant up opnsense elastic dvwa kali`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
+
+Deployment (Red):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.red"; vagrant up opnsense dvwa kali`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.red && vagrant up opnsense dvwa kali`  
+
+Deployment (Redmin):  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.redmin"; vagrant up opnsense dvwa kali`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.redmin && vagrant up opnsense dvwa kali`  
+
 Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8180` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.  
 
+##### Vagrantfile  
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
@@ -168,21 +272,49 @@ Although we expose the default port `80` that the DVWA is served on to the host 
 | tartarus-dvwa         | 1         | 2048        | 192.168.56.71  |
 | tartarus-kali         | 4         | 8192        | 192.168.56.200 |
 
-##### Total
-**Recommended**  
-RAM: 19GB  
-CPU: 11  
+**Total**  
+RAM: 19 GB  
+CPU: 11 vCores  
 
-**Passable**  
-RAM: 13GB  
-CPU: 7  
+##### Vagrantfile.bluemin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
+| tartarus-dvwa         | 1         | 1024        | 192.168.56.71  |
+| tartarus-kali         | 2         | 4096        | 192.168.56.200 |
+
+**Total bluemin**  
+RAM: 13 GB  
+CPU: 6 vCores  
+
+##### Vagrantfile.red
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
+| tartarus-dvwa         | 1         | 2048        | 192.168.56.71  |
+| tartarus-kali         | 4         | 8192        | 192.168.56.200 |
+
+**Total red**  
+RAM: 11 GB  
+CPU: 7 vCores  
+
+##### Vagrantfile.redmin
+| VM Name               | CPU Cores | Memory (MB) | Private IP     |
+|-----------------------|-----------|-------------|----------------|
+| tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
+| tartarus-dvwa         | 1         | 1024        | 192.168.56.71  |
+| tartarus-kali         | 2         | 4096        | 192.168.56.200 |
+
+**Total redmin**  
+RAM: 6 GB  
+CPU: 4 vCores  
 
 ##### Access Kali  
 
 **GUI**  
 
 **N.B.** The Kali host has the GUI enabled so it should pop up with the GUI whenever you boot the machine.  
-**N.B. 2** If 8GB of RAM is too much for your host to handle you can reduce the amount of memory Kali gets by changing the line `v.customize ["modifyvm", :id, "--memory", 8192]` near the bottom of the `Vagrantfile` to something like `v.customize ["modifyvm", :id, "--memory", 4096]` this will reduce the RAM by half, anything lower and the machine may become unstable. You can do the same for Elastic down to 6GB although it is not recommended! From `v.customize ["modifyvm", :id, "--memory", 8192]` to `v.customize ["modifyvm", :id, "--memory", 6144]` in the elastic part of the `Vagrantfile`. The same can be done to the CPUs each VM gets.  
 
 ![Kali_Access_GUI](images/KaliAccessGUI.png "Kali Access GUI")  
 
@@ -314,19 +446,11 @@ You can save the password in a file called "Password.txt" in the directory you r
 The file is in `.gitignore` however it's not good practice to save passwords to disk!  
 The password is also printed to the terminal / shell you ran `vagrant up` from.  
 If you need to reset the password you can do it on the `elastic` node with a little:  
-**Linux**  
-```bash
+```
 vagrant ssh elastic
 sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 exit
 ```  
-
-**Windows**
-```powershell
-vagrant ssh elastic
-sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
-exit
-```
 
 ## Viewing Kibana Alerts
 Once you have logged into the Kibana instance on `https://tartarus-elastic.home.arpa:5443` now it is time to view the alerts.  

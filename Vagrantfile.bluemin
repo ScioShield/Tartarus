@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     opnsense.vm.network :private_network, ip: "192.168.56.193", virtualbox__intnet: "vboxnet3"
     opnsense.vm.provider :virtualbox do |v|
      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-     v.customize ["modifyvm", :id, "--cpus", 2]
+     v.customize ["modifyvm", :id, "--cpus", 1]
      v.customize ["modifyvm", :id, "--memory", 1024]
      v.customize ["modifyvm", :id, "--name", "tartarus-opnsense"]
     end
@@ -41,8 +41,8 @@ Vagrant.configure("2") do |config|
     elastic.vm.network :forwarded_port, guest: 5443, host: 5443, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
     elastic.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--cpus", 4]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--cpus", 2]
+      v.customize ["modifyvm", :id, "--memory", 6144]
       v.customize ["modifyvm", :id, "--name", "tartarus-elastic"]
     end
     elastic.vm.provision "shell", inline: <<-SHELL
@@ -170,7 +170,7 @@ Vagrant.configure("2") do |config|
     linux.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
-      v.customize ["modifyvm", :id, "--memory", 2048]
+      v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", "tartarus-linux"]
     end
     linux.vm.provision "shell", inline: <<-SHELL
@@ -208,7 +208,7 @@ Vagrant.configure("2") do |config|
     dvwa.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 1]
-      v.customize ["modifyvm", :id, "--memory", 2048]
+      v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", "tartarus-dvwa"]
     end
     
@@ -259,7 +259,7 @@ EOF
     windows.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 2]
-      v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ["modifyvm", :id, "--memory", 2048]
       v.customize ["modifyvm", :id, "--name", "tartarus-windows"]
     end
     windows.vm.provision "shell", privileged: true, inline: <<-SHELL
@@ -305,8 +305,8 @@ SHELL
     kali.vm.network :private_network, ip: "192.168.56.200", virtualbox__intnet: "vboxnet3", auto_config: false
     kali.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--cpus", 4]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--cpus", 2]
+      v.customize ["modifyvm", :id, "--memory", 4096]
       v.customize ["modifyvm", :id, "--name", "tartarus-kali"]
     end
     kali.vm.provision "shell", inline: <<-SHELL
