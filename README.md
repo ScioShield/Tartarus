@@ -5,7 +5,10 @@ Tartarus (renamed from AtomicFireFly), is designed to automate the process of de
 ### Hardware
 **N.B.** Modern CPUs have virtual cores so if your CPU has 4 cores then it will have 8 vCPU cores. The below tabes all represent vCPU cores required by the VMs.  
 #### SIEM only
-The default deployment `vagrant up` will deploy only the Elastic SIEM and Opnsense firewall for testing. Can also be deployed with `HOSTS=elastic vagrant up opnsense elastic`.  
+Deployment:
+- Windows `$env:HOSTS = "elastic"; vagrant up opnsense; vagrant up opnsense elastic`  
+- Linux `vagrant up opnsense && HOSTS=elastic vagrant up opnsense elastic`  
+
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
@@ -22,7 +25,7 @@ To access you're newly created SIEM and firewall first add their DNS records to 
 Open `powershell` and run it in administrator mode (in the start bar type `powershell` and right click the icon and select run as administrator)  
 Now run this command `Add-Content 'C:\Windows\System32\Drivers\etc\hosts' "127.0.0.1 tartarus-elastic.home.arpa"` you can verify access with `Invoke-WebRequest -Uri "https://tartarus-elastic.home.arpa:5443" -SkipCertificateCheck` or just open `https://tartarus-elastic.home.arpa:5443` in your web browser.  
 
-If you want to access the Elastic guest use `vagrant ssh elastic`.
+If you want to access the Elastic guest use `vagrant ssh elastic`.  
 
 ###### Linux
 Open a `terminal` and type the following `sudo bash -c "echo '127.0.0.1 tartarus-elastic.home.arpa' >> /etc/hosts"` to add the DNS entry to your systems host file.  
@@ -70,7 +73,10 @@ Verify access with a little `curl -L -k https://tartarus-opnsense.home.arpa:8443
 ![Elastic_Diagram_1](images/elasticdiagram1.png "Example 1 Simple SIEM")  
 
 #### SIEM + Linux
-Deploy with `HOSTS=linux vagrant up opnsense elastic linux` will deploy the SIEM, firewall and a Linux host.  
+Deployment:
+- Windows `$env:HOSTS = "linux"; vagrant up opnsense; vagrant up opnsense elastic linux`  
+- Linux `vagrant up opnsense && HOSTS=linux vagrant up opnsense elastic linux`  
+
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
@@ -93,7 +99,10 @@ Complete DNS settings from the above example.
 ![Elastic_Diagram_2](images/elasticdiagram2.png "Example 2 Simple SIEM with Linux asset")  
 
 #### SIEM + Windows
-Deploy with `HOSTS=windows vagrant up opnsense elastic windows` will deploy the SIEM, firewall and a Windows host.  
+Deployment:
+- Windows `$env:HOSTS = "windows"; vagrant up opnsense; vagrant up opnsense elastic windows`  
+- Linux `vagrant up opnsense && HOSTS=windows vagrant up opnsense elastic windows`  
+
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
@@ -123,7 +132,10 @@ On Windows you can use the built in RDP client.
 ![Elastic_Diagram_3](images/elasticdiagram3.png "Example 3 Simple SIEM with Windows asset")  
 
 #### SIEM + Linux + Windows
-Deploy with `HOSTS=linwin vagrant up opnsense elastic linux windows` will deploy the SIEM, firewall, Linux and Windows.  
+Deployment:
+- Windows `$env:HOSTS = "linwin"; vagrant up opnsense; vagrant up opnsense elastic linux windows`  
+- Linux `vagrant up opnsense && HOSTS=linwin vagrant up opnsense elastic linux windows`  
+
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
@@ -143,8 +155,12 @@ Follow the guides above for access to any of the guests.
 ![Elastic_Diagram_4](images/elasticdiagram4.png "Example 4 Simple SIEM with Linux and Windows asset")  
 
 #### SIEM + Damn Vulnerable Web Application + Kali
-Deploy with `HOSTS=dvwa vagrant up opnsense elastic dvwa kali` will deploy the SEIM, firewall, the DVWA and Kali.
-Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8180` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.
+Deployment:
+- Windows `$env:HOSTS = "dvwa"; vagrant up opnsense; vagrant up opnsense elastic dvwa kali`  
+- Linux `vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
+
+Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8180` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.  
+
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |

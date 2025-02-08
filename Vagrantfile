@@ -4,11 +4,12 @@ Vagrant.configure("2") do |config|
     opnsense.vm.hostname = 'tartarus-opnsense'
     opnsense.vm.box_url = "bento/freebsd-13.2"
     opnsense.ssh.shell = '/bin/sh'
+    opnsense.ssh.connect_timeout = 120
     opnsense.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
     opnsense.vm.network "forwarded_port", guest: 443, host: 8443, auto_correct: true
     opnsense.vm.provision "file", source: "OPBootstrap.sh", destination: "/tmp/OPBootstrap.sh"
-    opnsense.vm.provision "file", source: "config/firewall.php", destination: "/tmp/firewall.php"
-    opnsense.vm.provision "shell", inline: <<-SHELL
+    opnsense.vm.provision "file", run: "always", source: "config/firewall.php", destination: "/tmp/firewall.php"
+    opnsense.vm.provision "shell", run: "always", inline: <<-SHELL
       if ! /usr/local/sbin/pkg info | grep -q opnsense; then
         echo "OPNsense not installed. Running OPBootstrap.sh..."
         sh /tmp/OPBootstrap.sh
@@ -52,7 +53,7 @@ Vagrant.configure("2") do |config|
       if ! nmcli connection show eth1 >/dev/null 2>&1; then
         echo "Connection eth1 not found. Adding new connection."
         nmcli connection add type ethernet con-name eth1 ifname eth1 ip4 192.168.56.10/26 gw4 192.168.56.2
-        nmcli connection modify eth1 ipv4.dns "1.1.1.1 1.0.0.1"
+        nmcli connection modify eth1 ipv4.dns "192.168.56.2"
         nmcli connection modify eth1 ipv4.route-metric 10
       else
         echo "Connection eth1 already exists. Skipping addition."
