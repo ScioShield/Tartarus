@@ -255,12 +255,12 @@ Deployment (Bluemin):
 - Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
 
 Deployment (Red):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.red"; vagrant up opnsense dvwa kali`  
-- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.red && vagrant up opnsense dvwa kali`  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.red"; vagrant up opnsense; vagrant up opnsense dvwa kali`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.red vagrant up opnsense && vagrant up opnsense dvwa kali`  
 
 Deployment (Redmin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.redmin"; vagrant up opnsense dvwa kali`  
-- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.redmin && vagrant up opnsense dvwa kali`  
+- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.redmin"; vagrant up opnsense; vagrant up opnsense dvwa kali`  
+- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.redmin vagrant up opnsense && vagrant up opnsense dvwa kali`  
 
 Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8180` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.  
 
