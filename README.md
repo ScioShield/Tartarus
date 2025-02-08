@@ -19,7 +19,7 @@ Deployment (Bluemin):
 | tartarus-opnsense     | 2         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 
-**Total**
+**Total**  
 RAM: 9 GB  
 CPU: 6 vCores  
 
@@ -29,7 +29,7 @@ CPU: 6 vCores
 | tartarus-opnsense     | 1         | 1024        | 192.168.56.2   |
 | tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
 
-**Total bluemin**
+**Total bluemin**  
 RAM: 7 GB  
 CPU: 3 vCores  
 
@@ -160,7 +160,7 @@ Deployment (Bluemin):
 | tartarus-elastic      | 4         | 8192        | 192.168.56.10  |
 | tartarus-windows      | 2         | 4096        | 192.168.56.80  |
 
-**Total**
+**Total**  
 RAM: 13 GB  
 CPU: 8 vCores  
 
@@ -171,7 +171,7 @@ CPU: 8 vCores
 | tartarus-elastic      | 2         | 6144        | 192.168.56.10  |
 | tartarus-windows      | 2         | 2048        | 192.168.56.80  |
 
-**Total bluemin**
+**Total bluemin**  
 RAM: 9 GB  
 CPU: 5 vCores  
 
