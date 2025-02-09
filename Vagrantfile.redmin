@@ -75,6 +75,15 @@ EOF
       # Apply Netplan configuration
       sudo netplan apply
     SHELL
+    # Additional provisioning script
+    dvwa.vm.provision :shell,  inline: <<-SHELL
+      if ! systemctl is-active --quiet apache2; then
+        echo "Apache service not running. Running DVWALBootstrap.sh"
+        bash /vagrant/DVWALBootstrap.sh
+      else
+        echo "Apache service is running"
+      fi
+    SHELL
   end
 
   config.vm.define "kali", autostart: false do |kali|
