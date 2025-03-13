@@ -16,6 +16,8 @@ Vagrant.configure("2") do |config|
       elif [ -e /conf/config.xml ] && [ ! -e /conf/configured ]; then
         echo "OPNsense is already installed. Running config/firewall.php..."
         php /tmp/firewall.php
+        configctl template reload OPNsense/Filter
+        configctl filter reload
         touch /conf/configured
       else
         echo "OPNsense is already installed and configured."
