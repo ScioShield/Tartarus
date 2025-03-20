@@ -1,0 +1,39 @@
+transformations:
+  - id: set_state_index_pfsense
+    type: set_state
+    key: index
+    val: 
+      - logs-pfsense.log-default
+    rule_conditions:
+      - type: logsource
+        product: pfsense
+  - id: ecs_pfsense_field_mapping
+    type: field_name_mapping
+    mapping:
+      src_ip: source.ip
+      source_ip: source.ip
+      clientip: source.ip
+      ClientIP: source.ip
+      dst_ip: destination.ip
+      destionation_ip: destination.ip
+      destinationip: destination.ip
+      DestinationIP: destination.ip
+      src_port: source.port
+      source_port: source.port
+      sourceport: source.port
+      SourcePort: source.port
+      dst_port: destination.port
+      destination_port: destination.port
+      destinationport: destination.port
+      DestinationPort: destination.port
+      protocol: network.transport
+      Protocol: network.transport
+      inet_type: network.type
+      outcome: event.action
+      Outcome: event.action
+      timestamp: "@timestamp"
+      bytes: network.bytes
+      host: observer.name
+      rule_conditions:
+        - type: logsource
+          product: pfsense

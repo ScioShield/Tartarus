@@ -1,0 +1,80 @@
+title: Base Rule - Web Apache Correlation Directory Enumeration
+id: e3dcf14e-7da1-4660-9c66-2b85f46db4b0
+status: experimental
+name: base_rule_web_apache_correlation_directory_enumeration
+description: Detects an attempt to enumarate a webserver by the method and responce code
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-20
+tags:
+    - attack.reconnaissance
+    - attack.t1595.002
+logsource:
+    product: apache
+    service: access
+    category: web
+detection:
+    selection:
+      method: "GET"
+      status: 404
+    condition: selection
+level: informational
+---
+title: Web Apache Correlation Directory Enumeration
+id: 289a3330-7141-4117-8691-3db7c7e69364
+status: experimental
+name: web_apache_correlation_directory_enumeration
+description: |
+    Correlation rule to detect directory Enumeration by the number of 404 responces from a single source to a single destination
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_directory_enumeration
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1000
+        field: url
+falsepositives:
+  - Unlikely
+level: medium
+---
+title: Threat Hunt - Web Apache Correlation Directory Enumeration
+id: a8aa9af9-c3ea-4fb9-999b-a6fcb0d53abd
+status: experimental
+name: threat_hunt_web_apache_correlation_directory_enumeration
+description: |
+    Correlation rule to detect directory Enumeration by the number of 404 responces from a single source to a single destination
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_directory_enumeration
+    group-by:
+        - clientip
+        - host
+    timespan: 1d
+    condition:
+        gte: 200
+        field: url
+falsepositives:
+  - Unlikely
+level: medium

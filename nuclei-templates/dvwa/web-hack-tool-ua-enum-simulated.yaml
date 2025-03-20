@@ -1,0 +1,41 @@
+id: web-hack-tool-ua-enum-simulated
+
+info:
+  name: Web Hack Tool User-Agent Enumaration Simulated
+  author: Shieldia
+  severity: info
+  description: Simulates Web Hack Tool User-Agent enumaration by sending requests with known bad User-Agents to the target.
+  reference:
+    - https://attack.mitre.org/techniques/T1595/003/
+  tags: web,wordlist
+
+variables:
+  user_agents:
+    - "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+    - "Fuzz Faster U Fool v2.1.0-dev"
+    - "Mozilla/5.0 (Hydra)"
+    - "sqlmap/1.9.2#stable (https://sqlmap.org)"
+    - "DirBuster-1.0-RC1 (http://www.owasp.org/index.php/Category:OWASP_DirBuster_Project)"
+    # The default UA for Nikto v2.5.0 is the below https://github.com/sullo/nikto/commit/a138740746261568ffe7a0d8875f88a70d13add2
+    # Also one of the UAs that Nuclei use
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+
+flow: |
+  for (let user_agent of iterate(template["user_agents"])) {
+    set("user_agent", user_agent);
+    http(1);
+  }
+
+http:
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        User-Agent: {{user_agent}}
+        Connection: close
+    matchers:
+      - type: status
+        status:
+          - 200
+        internal: true

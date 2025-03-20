@@ -1,0 +1,117 @@
+title: Base Rule - Web Apache Correlation Hack Tool User Agent
+id: bd51cff0-38fc-4b09-be47-3d9c03d02149
+related:
+    - id: c42a3073-30fb-48ae-8c99-c23ada84b103
+      type: similar
+status: experimental
+name: base_rule_web_apache_correlation_hack_tool_user_agent
+description: Detects suspicius User-Agnets in Apache Web Server logs
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-18
+tags:
+    - attack.reconnaissance
+    - attack.t1595.002
+    - attack.initial-access
+    - attack.t1190
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: web
+detection:
+    selection:
+        c-useragent|contains:
+            # Vulnerability scanner and brute force tools
+            - 'Nmap Scripting Engine'
+            - 'Fuzz Faster U Fool'
+            - 'OpenVAS'
+            - 'Nikto'
+            # The default UA for Nikto v2.5.0 https://github.com/sullo/nikto/commit/a138740746261568ffe7a0d8875f88a70d13add2
+            - 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+            - '(hydra)'
+            - ' arachni/'
+            - ' BFAC '
+            - ' brutus '
+            - ' cgichk '
+            - 'core-project/1.0'
+            - ' crimscanner/'
+            - 'datacha0s'
+            - 'DirBuster'
+            - 'domino hunter'
+            - 'dotdotpwn'
+            - 'FHScan Core'
+            - 'floodgate'
+            - 'get-minimal'
+            - 'gootkit auto-rooter scanner'
+            - 'grendel-scan'
+            - ' inspath '
+            - 'internet ninja'
+            - 'jaascois'
+            - ' zmeu '
+            - 'masscan'
+            - ' metis '
+            - 'morfeus fucking scanner'
+            - 'n-stealth'
+            - 'nsauditor'
+            - 'pmafind'
+            - 'security scan'
+            - 'springenwerk'
+            - 'teh forest lobster'
+            - 'toata dragostea'
+            - ' vega/'
+            - 'voideye'
+            - 'webshag'
+            - 'webvulnscan'
+            - ' whcc/'
+            # SQL Injection
+            - ' Havij'
+            - 'absinthe'
+            - 'bsqlbf'
+            - 'mysqloit'
+            - 'pangolin'
+            - 'sql power injector'
+            - 'sqlmap'
+            - 'sqlninja'
+            - 'uil2pn'
+            # Hack tool
+            - 'ruler'  # https://www.crowdstrike.com/blog/using-outlook-forms-lateral-movement-persistence/
+            - 'Mozilla/5.0 (Windows; U; Windows NT 5.1; pt-PT; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 (.NET CLR 3.5.30729)'  # SQLi Dumper
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+---
+title: Web Apache Correlation Hack Tool User Agent
+id: 6b5a3259-9381-46e4-a507-bd45bb5e9d28
+status: experimental
+name: web_apache_correlation_hack_tool_user_agent
+description: |
+    Correlation rule to detect suspicius User-Agnets in Apache Web Server logs from a single source to a single destination
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+    - attack.reconnaissance
+    - attack.t1595.002
+    - attack.initial-access
+    - attack.t1190
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_hack_tool_user_agent
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: useragent
+falsepositives:
+  - Unlikely
+level: medium

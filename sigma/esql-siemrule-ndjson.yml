@@ -1,0 +1,60 @@
+vars:
+  schedule_interval: 5
+  schedule_interval_unit: m
+
+postprocessing:
+  - type: template
+    template: |+
+      {%- set tags = [] -%}
+      {% for n in rule.tags %}
+        {%- set tag_string = n.namespace ~ '-' ~ n.name -%}
+        {%- set tags = tags.append(tag_string) -%}
+      {% endfor %}
+
+      {# Disable threat_hunt rules #}
+      {%- set is_threat_hunt = rule.name.startswith("threat_hunt") if rule.name is string else false -%}
+
+      {# Map severity to risk_score manually #}
+      {%- set severity = rule.level.name | string | lower if rule.level is not none else "low" -%}
+      {%- set severity_risk_map = {"critical": 100, "high": 75, "medium": 50, "low": 21} -%}
+      {%- set risk_score = severity_risk_map.get(severity, 21) -%}
+      {%- set seconds = (((pipeline.vars.schedule_interval|int * 2 * 60) - 60) / 60)|int %}
+      {%- set from_value = "now-" ~ seconds ~ pipeline.vars.schedule_interval_unit %}
+
+      {%- set rule_data = {
+        "name": "SIGMA" " - " ~ rule.title,
+        "id": rule.id | lower,
+        "author": [rule.author] if rule.author is string else rule.author,
+        "description": rule.description,
+        "references": rule.references,
+        "enabled": false if is_threat_hunt else true,
+        "interval": pipeline.vars.schedule_interval|string ~ pipeline.vars.schedule_interval_unit,
+        "from": from_value,
+        "rule_id": rule.id | lower,
+        "false_positives": rule.falsepositives,
+        "immutable": false,
+        "output_index": "",
+        "meta": { "from": "1m" },
+        "risk_score": risk_score,
+        "severity": severity,
+        "severity_mapping": [],
+        "threat": query.threat,
+        "to": "now",
+        "version": 1,
+        "max_signals": 100,
+        "exceptions_list": [],
+        "setup": "",
+        "type": "esql",
+        "note": query.note if query.note is string else "",
+        "license": "DRL 1.1",
+        "language": "esql",
+        "index": pipeline.state.index | list,
+        "query": query.query,
+        "tags": tags,
+        "actions": [],
+        "related_integrations": [],
+        "required_fields": [],
+        "risk_score_mapping": []
+      } -%}
+
+      {{ rule_data | tojson }}

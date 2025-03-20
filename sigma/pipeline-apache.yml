@@ -1,0 +1,33 @@
+transformations:
+  - id: set_state_index_apache
+    type: set_state
+    key: index
+    val: 
+      - logs-apache.access-default
+    rule_conditions:
+      - type: logsource
+        product: apache
+  - id: ecs_apache_field_mapping
+    type: field_name_mapping
+    mapping:
+      clientip: source.ip
+      ClientIP: source.ip
+      ident: user.name
+      auth: user.name
+      timestamp: "@timestamp"
+      request: http.request.body.content
+      method: http.request.method
+      url: url.original
+      c-uri: url.original
+      protocol: http.version
+      status: http.response.status_code
+      bytes: http.response.body.bytes
+      referrer: http.request.referrer
+      useragent: user_agent.original
+      c-useragent: user_agent.original
+      host: host.name
+      vhost: server.domain
+      response_time: event.duration
+      rule_conditions:
+        - type: logsource
+          product: apache

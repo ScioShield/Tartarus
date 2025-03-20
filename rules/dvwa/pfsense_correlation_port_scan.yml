@@ -1,0 +1,83 @@
+title: Base Rule - pfSense Correlation Port Scan Activity
+id: f7ac5b00-1e2d-4b5e-8ecc-53f81cf3a5ba
+status: experimental
+name: base_rule_pfsense_correlation_port_scan_activity
+description: Base Rule to filter for blocked network events
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+  product: pfsense
+  service: filterlog
+  category: firewall
+detection:
+    selection:
+      outcome: block
+    condition: selection
+level: informational
+---
+title: pfSense Correlation Port Scan Activity
+id: 0c61e4ef-b201-4f9c-847f-f6ec9c7c3aaa
+status: experimental
+name: pfsense_correlation_port_scan_activity
+description: |
+    Correlation rule to detect blocked network events from a single source to a single destination via a single observer on over 1000 unique ports over 5 minutes
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+  product: pfsense
+  service: filterlog
+  category: firewall
+correlation:
+    type: value_count
+    rules:
+    - base_rule_pfsense_correlation_port_scan_activity
+    group-by:
+        - src_ip
+        - dst_ip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1000
+        field: dst_port
+falsepositives:
+  - Likely
+  - Internal vulnrability scanners such as Nessus do port scanning to verify what ports are open on the target
+level: low
+---
+title: Threat Hunt - pfSense Correlation Port Scan Activity
+id: a56c2e3e-0316-11f0-924f-080027ccddfd
+status: experimental
+name: threat_hunt_pfsense_correlation_port_scan_activity
+description: |
+    Correlation rule to detect blocked network events from a single source to a single destination via a single observer on over 200 unique ports over a month
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+  product: pfsense
+  service: filterlog
+  category: firewall
+correlation:
+    type: value_count
+    rules:
+    - base_rule_pfsense_correlation_port_scan_activity
+    group-by:
+      - src_ip
+      - dst_ip
+      - host
+    timespan: 1d
+    condition:
+        gte: 200
+        field: dst_port
+falsepositives:
+  - Likely
+  - Internal vulnrability scanners such as Nessus do port scanning to verify what ports are open on the target
+level: low

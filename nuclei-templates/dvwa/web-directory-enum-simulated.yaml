@@ -1,0 +1,38 @@
+id: web-directory-enum-simulated
+
+info:
+  name: Web Directory Enumaration Simulated
+  author: Shieldia
+  severity: info
+  description: Simulates directory enumaration by sending 1100 requests to random directories of the target.
+  reference:
+    - https://attack.mitre.org/techniques/T1595/003/
+  tags: web,wordlist
+
+flow: |
+  var all404 = true;
+  for (var i = 0; i < 1100; i++) {
+    http(1);
+    var status = template["response_status_1"];
+    if (status !== 404) {
+      all404 = false;
+    }
+  }
+  if (all404) {
+    set_match(true);
+  }
+
+http:
+  - raw:
+      - |
+        GET /DVWA/{{rand_text_numeric(10)}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    extractors:
+      - type: dsl
+        dsl:
+          - status_code
+        name: response_status_1
+        internal: true
