@@ -4,8 +4,8 @@ status: experimental
 description: Detects a failure to tamper with the volume journal on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1070/T1070.md#description-from-attck
-author: Dylan Shield
-date: 2024/05/06
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-06
 tags:
     - attack.defense_evasion
     - attack.t1070

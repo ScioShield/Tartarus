@@ -5,8 +5,8 @@ description: Detects the installation of a service on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1543.003/T1543.003.md#atomic-test-3---service-installation-powershell
     - https://www.ryadel.com/en/windows-services-full-list-shortname-displayname/
-author: Dylan Shield
-date: 2024/05/06
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-06
 tags:
     - attack.persistence
     - attack.t1543.003

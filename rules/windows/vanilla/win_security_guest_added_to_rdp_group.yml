@@ -5,11 +5,11 @@ related:
   - id: ffa28e60-bdb1-46e0-9f82-05f7a61cc06e
     type: similar
 description: Detects the guest account is has been added to the Remote Desktop Users group
-author: Dylan Shield
+author: Dylan Shield (Shieldia.co)
 logsource:
   product: windows
   service: security
-date: 2024/04/28
+date: 2024-04-28
 tags:
   - attack.initial_access
   - attack.t1078.001

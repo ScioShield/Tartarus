@@ -5,8 +5,8 @@ related:
       type: similar
 status: experimental
 description: Detects the enumeration of user privileges using Esentutil, which could be legitimate activity or a sign of privilege escalation activity
-author: Dylan Shield
-date: 2024/04/28
+author: Dylan Shield (Shieldia.co)
+date: 2024-04-28
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1003.002/T1003.002.md
 tags:

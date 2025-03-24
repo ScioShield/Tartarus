@@ -7,8 +7,8 @@ status: experimental
 description: Detects the creation of a hidden user on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1564/T1564.md
-author: Dylan Shield
-date: 2024/05/06
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-06
 tags:
     - attack.defense_evasion
     - attack.t1564

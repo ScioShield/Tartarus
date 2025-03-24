@@ -4,8 +4,8 @@ status: experimental
 description: Detects the creation or modification of a local account with no password expiration on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1078.003/T1078.003.md
-author: Dylan Shield
-date: 2024/05/06
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-06
 tags:
     - attack.persistence
     - attack.t1136.001

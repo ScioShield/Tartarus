@@ -5,8 +5,8 @@ related:
       type: similar
 status: experimental
 description: Detects the enumeration of user privileges using WMI, which could be legitimate activity or a sign of privilege escalation activity
-author: Dylan Shield
-date: 2024/04/28
+author: Dylan Shield (Shieldia.co)
+date: 2024-04-28
 tags:
     - attack.execution
     - attack.t1047

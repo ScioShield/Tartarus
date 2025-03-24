@@ -4,8 +4,8 @@ status: experimental
 description: Detects the Administrator account being renamed on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1098/T1098.md#atomic-test-1---admin-account-manipulate
-author: Dylan Shield
-date: 2024/05/04
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-04
 tags:
     - attack.t1098
 logsource:

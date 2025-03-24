@@ -4,8 +4,8 @@ status: experimental
 description: Detects a command being run as a service on a Windows host
 references:
     - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1569.002/T1569.002.md
-author: Dylan Shield
-date: 2024/05/02
+author: Dylan Shield (Shieldia.co)
+date: 2024-05-02
 tags:
     - attack.execution
     - attack.t1569.002
