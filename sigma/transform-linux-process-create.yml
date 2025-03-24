@@ -1,0 +1,16 @@
+transformations:
+  - id: ecs_linux_process_create_field_mapping
+    type: field_name_mapping
+    mapping:
+      ParentProcessName: process.parent.name
+      ParentProcessId: process.parent.pid
+      ProcessName: process.name
+      ProcessId: process.pid
+      CommandLine: process.command_line
+      User: user.name
+      Hostname: host.name
+      EventTime: "@timestamp"
+      rule_conditions:
+        - type: logsource
+          product: linux
+          category: process_creation
