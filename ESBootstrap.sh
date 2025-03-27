@@ -304,9 +304,9 @@ curl --silent -XPUT --url "https://$IP_ADDR:$ES_PORT/_security/service/elastic/f
   --output /root/Ftoken.txt \
   --cacert /vagrant/certs/root_ca.crt
 
- jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/tokens/Ftoken.txt
+jq --raw-output '.token.value' /root/Ftoken.txt > /vagrant/tokens/Ftoken.txt
 
- # Add Fleet Policy
+# Add Fleet Policy
 curl --silent -XPOST \
   --output /root/FPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
@@ -335,14 +335,14 @@ curl --silent -XPUT \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --data @<(envsubst < /vagrant/config/fleet_integration_update_ip.json) > /dev/null
 
-  # Add host IP and yaml settings to Fleet API
+# Add host IP and yaml settings to Fleet API
  curl --silent -XPUT \
- --cacert /vagrant/certs/root_ca.crt \
- --url "https://$DNS:$K_PORT_EXT/api/fleet/outputs/fleet-default-output" \
+  --cacert /vagrant/certs/root_ca.crt \
+  --url "https://$DNS:$K_PORT_EXT/api/fleet/outputs/fleet-default-output" \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
- --data @<(envsubst < /vagrant/config/fleet_integration_update_es_ip.json) > /dev/null
+  --data @<(envsubst < /vagrant/config/fleet_integration_update_es_ip.json) > /dev/null
 
- # Add Opnsense Integration
+# Add Opnsense Integration
 curl --silent -XPOST \
   --output /root/OPid.txt \
   --cacert /vagrant/certs/root_ca.crt \
@@ -350,7 +350,7 @@ curl --silent -XPOST \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
   --data @<(envsubst < /vagrant/config/opnsense_integration_add.json)
 
-  # Enable all Windows and Linux default alerts (must have the pipe to dev null or it will spam STDOUT)
+# Enable all Windows and Linux default alerts (must have the pipe to dev null or it will spam STDOUT)
 curl --silent -XPOST \
   --cacert /vagrant/certs/root_ca.crt \
   --header @<(envsubst < /vagrant/config/auth_headers.txt) \
@@ -362,13 +362,21 @@ curl --silent -XPOST \
 
 # Install the fleet server
 sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https://$DNS:$F_PORT \
- --fleet-server-es=https://$DNS:$ES_PORT \
- --fleet-server-service-token=$(cat /vagrant/tokens/Ftoken.txt) \
- --fleet-server-policy=$(cat /vagrant/keys/FPid.txt) \
- --certificate-authorities=/vagrant/certs/root_ca.crt \
- --fleet-server-es-ca=/etc/pki/fleet/root_ca.crt \
- --fleet-server-cert=/etc/pki/fleet/fleet.crt \
- --fleet-server-cert-key=/etc/pki/fleet/fleet.key
+  --fleet-server-es=https://$DNS:$ES_PORT \
+  --fleet-server-service-token=$(cat /vagrant/tokens/Ftoken.txt) \
+  --fleet-server-policy=$(cat /vagrant/keys/FPid.txt) \
+  --certificate-authorities=/vagrant/certs/root_ca.crt \
+  --fleet-server-es-ca=/etc/pki/fleet/root_ca.crt \
+  --fleet-server-cert=/etc/pki/fleet/fleet.crt \
+  --fleet-server-cert-key=/etc/pki/fleet/fleet.key
+
+# Import all the custom Sigma security rules
+for file in /vagrant/rules/dvwa/*.ndjson; do
+  curl --silent -XPOST --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules/_import" \
+    --cacert /vagrant/certs/root_ca.crt \
+    --header @<(envsubst < /vagrant/config/import_headers.txt) \
+    --form "file=@$file" > /dev/null
+done
 
 # VM Settings
 echo "Changing the default route to go via the firewall!"

@@ -1,0 +1,94 @@
+title: Base Rule - Web Apache Correlation Brute Force GET
+id: 2bd9c6d1-2ddf-4e60-90a7-10e58f61b33b
+status: experimental
+name: base_rule_web_apache_correlation_brute_force_get
+description: Detects an attempt to brute force a webserver by the method and username and password in url paramiters
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-20
+tags:
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: web
+detection:
+    selection:
+      method: "GET"
+      status: 200
+      url|contains|all:
+          - "username="
+          - "password="
+          - "Login="
+    condition: selection
+level: informational
+---
+title: Web Apache Correlation Brute Force GET
+id: 42d3a802-e574-486d-8b3a-cf5a1057d263
+status: experimental
+name: web_apache_correlation_directory_enumeration
+description: |
+    Correlation rule to detect an attempt to brute force a webserver by the method and username and password in url paramiters
+    Run this ES|QL search to get targeted users:
+    FROM logs-apache.access-default
+    | WHERE http.request.method == "GET" AND url.query LIKE "*username=*" AND url.query LIKE "*password=*" AND url.query LIKE "*Login=*"
+    | EVAL username = split(url.query,"&")
+    | STATS attempt_count = COUNT(url.query) BY username
+    | EVAL valid = CASE (starts_with(username, "username="),true)
+    | WHERE valid
+    | EVAL user = REPLACE(username,"username=", "")
+    | SORT attempt_count DESC
+    | WHERE attempt_count > 10
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_brute_force_get
+    group-by:
+        - clientip
+        - host
+    timespan: 1m
+    condition:
+        gte: 20
+        field: uri-query
+falsepositives:
+  - Unlikely
+level: medium
+---
+title: Threat Hunt - Web Apache Correlation Brute Force GET
+id: 85a41780-774d-40e5-98aa-c6fef9f2853f
+status: experimental
+name: threat_hunt_web_apache_correlation_brute_force_get
+description: |
+    Correlation rule to detect an attempt to brute force a webserver by the method and username and password in url paramiters
+author: Dylan Shield (Shieldia.co)
+date: 2025/03/17
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_brute_force_get
+    group-by:
+        - clientip
+        - host
+    timespan: 1d
+    condition:
+        gte: 10
+        field: uri-query
+falsepositives:
+  - Unlikely
+level: medium

@@ -17,8 +17,15 @@ transformations:
       timestamp: "@timestamp"
       request: http.request.body.content
       method: http.request.method
+      c-url: url.original
+      cs-url: url.original
       url: url.original
+      uri: url.original
       c-uri: url.original
+      cs-uri: url.original
+      uri-query: url.query
+      c-uri-query: url.query
+      cs-uri-query: url.query
       protocol: http.version
       status: http.response.status_code
       bytes: http.response.body.bytes
