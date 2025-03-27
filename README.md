@@ -463,7 +463,7 @@ You should see the alerts page (Note you might not have any alerts yet, you'd ne
 ![elasticAlert3](images/alerts.png "alert")
 
 ## Loading Sigma Rules
-We make use of some existing Sigma rules, located in `./rules` as well I have written my own custom rules to detect Atomic Red Team activity. All rules are under DRL. 
+We make use of some existing Sigma rules, located in `./rules` as well I have written my own custom rules to detect Atomic Red Team activity. All rules are under DRL. The `dvwa` rules are imported for you, just search for "SIGMA" in the rules search bar.  
 To load the custom rules replicate the `.env.example` as a `.env` file and delete everything after the values (so everything to the right and including the `#` so it's only key=value per line).  
 Have Python 3 installed.  
 Install the requirements with a little `python3 -m pip install -r requirements.txt` this will install pySigma needed to load the rules.  
