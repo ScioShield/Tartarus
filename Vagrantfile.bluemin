@@ -286,7 +286,7 @@ EOF
           route change 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1
       } else {
           Write-Host "Adding new route..."
-          route add 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1
+          route add 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1  -p
       }
     SHELL
     windows.vm.provision "shell", privileged: true, inline: <<-SHELL
