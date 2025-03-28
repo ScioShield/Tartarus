@@ -1,0 +1,41 @@
+title: SQLite Firefox Profile Data DB Access
+id: c9fd12ee-2cd4-44e0-8909-53b5044ad711
+related:
+    - id: 24c77512-782b-448a-8950-eddb0785fc71
+      type: similar
+status: experimental
+description: Detect usage of the "sqlite" binary to query Firefox databases for potential data stealing.
+references:
+    - https://www.mozilla.org/en-US/firefox/
+    - https://support.mozilla.org/en-US/kb/profiles-where-firefox-stores-user-data
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-28
+tags:
+    - attack.credential-access
+    - attack.t1539
+    - attack.t1555.003
+    - attack.collection
+    - attack.t1005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_sql:
+        - Product: SQLite
+        - Image|endswith:
+              - '\sqlite.exe'
+              - '\sqlite3.exe'
+    selection_firefox:
+        CommandLine|contains:
+            - '\Mozilla\Firefox\Profiles\'
+            - '\AppData\Roaming\Mozilla\Firefox\Profiles\'
+    selection_data:
+        CommandLine|contains:
+            - 'cookies.sqlite'
+            - 'places.sqlite' # Browsing history and bookmarks
+            - 'formhistory.sqlite' # Autofill data
+            - 'webappsstore.sqlite' # Local storage data
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
