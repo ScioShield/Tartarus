@@ -6,7 +6,7 @@ related:
 status: experimental
 name: base_rule_web_apache_correlation_hack_tool_user_agent
 description: Detects suspicius User-Agnets in Apache Web Server logs
-author: Dylan Shield (Shieldia.co)
+author: Florian Roth (Nextron Systems), Dylan Shield (Shieldia.co)
 date: 2025-03-18
 tags:
     - attack.reconnaissance
