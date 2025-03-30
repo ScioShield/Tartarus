@@ -1,0 +1,24 @@
+title: Web Apache Remote File Inclusion Attempt
+id: 5d649859-f4ac-4158-a5b7-e8321f5d155b
+status: experimental
+name: web_apache_rfi_attempt
+description: Detect Remote File Inclusion attempts in webserver logs via URI parameters containing `http(s)` or an IPv4 address or a domain name
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-30
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+detection:
+    selection:
+        uri-query|re:
+            - '(.*)http(s?)(.*)'
+            - '(.*)(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(.*)'
+            - '.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)/(.*)|.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high

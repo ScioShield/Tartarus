@@ -1,0 +1,51 @@
+title: Base Rule - Web Apache Error Correlation File Inclusion
+id: 3d073cb8-c70b-45e9-8d59-f05fd50330c5
+status: experimental
+name: base_rule_error_file_inclusion_attempt
+description: Detects File Inclusion attempts in apache error logs
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-30
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: error
+detection:
+    selection:
+        message|contains:
+            - 'Failed opening'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+---
+title: Web Apache Error Correlation File Inclusion
+id: dc8e43d1-3103-4fd9-8eb8-1a150a474c3b
+status: experimental
+name: error_file_inclusion_attempt
+description: |
+    Detects File Inclusion attempts in apache error logs
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-30
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: error
+correlation:
+    type: value_count
+    rules:
+    - base_rule_error_file_inclusion_attempt
+    group-by:
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: message
+falsepositives:
+    - Unknown
+level: medium

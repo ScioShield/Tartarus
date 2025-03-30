@@ -1,0 +1,64 @@
+title: Base Rule - Path Traversal Exploitation Attempts
+id: 7745c2ea-24a5-4290-b680-04359cb84b35
+status: test
+name: base_rule_path_traversal_exploitation_attempts
+description: Detects path traversal exploitation attempts
+references:
+    - https://github.com/projectdiscovery/nuclei-templates
+    - https://book.hacktricks.xyz/pentesting-web/file-inclusion
+author: Subhash Popuri (@pbssubhash), Florian Roth (Nextron Systems), Thurein Oo, Nasreddine Bencherchali (Nextron Systems), Dylan Shield (Shieldia.co)
+date: 2021-09-25
+modified: 2025-03-29
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+detection:
+    selection:
+        cs-uri-query|contains:
+            - '../../../../../lib/password'
+            - '../../../../windows/'
+            - '../../../etc/'
+            - '..%252f..%252f..%252fetc%252f'
+            - '..%c0%af..%c0%af..%c0%afetc%c0%af'
+            - '%252e%252e%252fetc%252f'
+    condition: selection
+falsepositives:
+    - Expected to be continuously seen on systems exposed to the Internet
+    - Internal vulnerability scanners
+level: medium
+---
+title: Path Traversal Exploitation Attempts
+id: 5a06ded0-5111-45c9-a8fd-bd8d6d3ecefc
+status: experimental
+name: path_traversal_exploitation_attempts
+description: |
+    Detects path traversal exploitation attempts
+references:
+    - https://github.com/projectdiscovery/nuclei-templates
+    - https://book.hacktricks.xyz/pentesting-web/file-inclusion
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-29
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+correlation:
+    type: value_count
+    rules:
+    - base_rule_path_traversal_exploitation_attempts
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: cs-uri-query
+falsepositives:
+    - Expected to be continuously seen on systems exposed to the Internet
+    - Internal vulnerability scanners
+level: medium
