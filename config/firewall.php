@@ -176,7 +176,8 @@ $rules = [
         "source_not" => "0",
         "protocol" => "UDP",
         "destination_net" => "(self)",
-        "destination_port" => "Services"
+        "destination_port" => "Services",
+        "log" => "1"
     ],
     [
         "action" => "pass",
@@ -190,7 +191,8 @@ $rules = [
         "source_not" => "0",
         "protocol" => "TCP",
         "destination_net" => "lan",
-        "destination_port" => "Monitoring"
+        "destination_port" => "Monitoring",
+        "log" => "1"
     ],
     [
         "action" => "block",
@@ -217,7 +219,8 @@ $rules = [
         "source_not" => "0",
         "protocol" => "UDP",
         "destination_net" => "(self)",
-        "destination_port" => "DHCP_Ports"
+        "destination_port" => "DHCP_Ports",
+        "log" => "1"
     ],
     [
         "action" => "pass",
@@ -231,7 +234,8 @@ $rules = [
         "source_not" => "0",
         "protocol" => "TCP",
         "destination_net" => "any",
-        "destination_port" => "WebPorts"
+        "destination_port" => "WebPorts",
+        "log" => "1"
     ],
     [
         "action" => "pass",
@@ -245,7 +249,8 @@ $rules = [
         "source_not" => "0",
         "protocol" => "TCP",
         "destination_net" => "opt1",
-        "destination_port" => "22"
+        "destination_port" => "22",
+        "log" => "1"
     ]
 ];
 
