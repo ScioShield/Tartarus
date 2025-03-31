@@ -7,6 +7,16 @@ transformations:
     rule_conditions:
       - type: logsource
         product: apache
+        service: access
+  - id: set_state_index_apache
+    type: set_state
+    key: index
+    val: 
+      - logs-apache.error-default
+    rule_conditions:
+      - type: logsource
+        product: apache
+        service: error
   - id: ecs_apache_field_mapping
     type: field_name_mapping
     mapping:
@@ -17,6 +27,7 @@ transformations:
       timestamp: "@timestamp"
       request: http.request.body.content
       method: http.request.method
+      cs-method: http.request.method
       c-url: url.original
       cs-url: url.original
       url: url.original
@@ -28,6 +39,7 @@ transformations:
       cs-uri-query: url.query
       protocol: http.version
       status: http.response.status_code
+      sc-status: http.response.status_code
       bytes: http.response.body.bytes
       referrer: http.request.referrer
       useragent: user_agent.original

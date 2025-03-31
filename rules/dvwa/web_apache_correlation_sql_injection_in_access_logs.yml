@@ -1,0 +1,113 @@
+title: Base Rule - SQL Injection Strings In URI
+id: 5513deaf-f49a-46c2-a6c8-3f111b5cb453
+status: test
+description: Detects potential SQL injection attempts via GET requests in access logs.
+name: base_rule_sqli_strings_in_uri
+references:
+    - https://www.acunetix.com/blog/articles/exploiting-sql-injection-example/
+    - https://www.acunetix.com/blog/articles/using-logs-to-investigate-a-web-application-attack/
+    - https://brightsec.com/blog/sql-injection-payloads/
+    - https://github.com/payloadbox/sql-injection-payload-list
+    - https://book.hacktricks.xyz/pentesting-web/sql-injection/mysql-injection
+author: Saw Win Naung, Nasreddine Bencherchali (Nextron Systems), Thurein Oo (Yoma Bank), Dylan Shield (Shieldia.co)
+date: 2020-02-22
+modified: 2025-03-31
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: access
+detection:
+    selection:
+        cs-method:
+            - 'GET'
+        uri-query|contains:
+            - '@@version'
+            - '@@VERSION'
+            - '%271%27%3D%271'
+            - '=select '
+            - '=select('
+            - '=select%20'
+            - 'concat_ws('
+            - 'CONCAT(0x'
+            - 'from mysql.innodb_table_stats'
+            - 'from%20mysql.innodb_table_stats'
+            - 'group_concat('
+            - 'information_schema.tables'
+            - 'json_arrayagg('
+            - 'or 1=1#'
+            - 'or%201=1#'
+            - 'order by '
+            - 'order%20by%20'
+            - 'select * '
+            - 'select database()'
+            - 'select version()'
+            - 'select%20*%20'
+            - 'select%20database()'
+            - 'select%20version()'
+            - 'select%28sleep%2810%29'
+            - 'SELECTCHAR('
+            - 'table_schema'
+            - 'UNION ALL SELECT'
+            - 'UNION SELECT'
+            - 'UNION%20ALL%20SELECT'
+            - 'UNION%20SELECT'
+            - "'1'='1"
+            - "+or+0%3D0+%23"
+            - "+or+%277659%27%3D%277659"
+            - "+or+1%3D1+or+%27%27%3D%27"
+            - "+or+%271%27%3D%271"
+            - "or+0%3D0+%23%22"
+            - "+or+1+--%27"
+            - "+or+%27%27%3D%27"
+            - "+or+%27a%27%3D%27a"
+            - "%7C%7C%276"
+            - "or+0%3D0+%23"
+            - "+or+0%3D0+%23%22"
+    filter_main_status:
+        sc-status: 404
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Java scripts and CSS Files
+    - User searches in search boxes of the respective website
+    - Internal vulnerability scanners can cause some serious FPs when used, if you experience a lot of FPs due to this think of adding more filters such as "User Agent" strings and more response codes
+level: high
+---
+title: SQL Injection Strings In URI
+id: ac762709-a61b-4528-b7b5-725dd1406fa3
+status: experimental
+name: sqli_strings_in_uri
+description: |
+    Detects potential SQL injection attempts via GET requests in access logs.
+references:
+    - https://www.acunetix.com/blog/articles/exploiting-sql-injection-example/
+    - https://www.acunetix.com/blog/articles/using-logs-to-investigate-a-web-application-attack/
+    - https://brightsec.com/blog/sql-injection-payloads/
+    - https://github.com/payloadbox/sql-injection-payload-list
+    - https://book.hacktricks.xyz/pentesting-web/sql-injection/mysql-injection
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-31
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+correlation:
+    type: value_count
+    rules:
+    - base_rule_sqli_strings_in_uri
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: uri-query
+falsepositives:
+    - Java scripts and CSS Files
+    - User searches in search boxes of the respective website
+    - Internal vulnerability scanners can cause some serious FPs when used, if you experience a lot of FPs due to this think of adding more filters such as "User Agent" strings and more response codes
+level: high
