@@ -1,6 +1,6 @@
 Accept: */*
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Type: multipart/form-data
+Content-Type: application/json
 kbn-xsrf: reporting
 Authorization: ApiKey ${API_KEY}
