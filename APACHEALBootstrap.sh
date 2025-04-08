@@ -34,7 +34,7 @@ sudo /opt/elastic-agent-${VER}-linux-x86_64/elastic-agent install -f \
   --certificate-authorities=/vagrant/certs/root_ca.crt
 
 # Install auditd
-sudo apt install auditd
+sudo apt -y install auditd
 
 # Download the audit.rules file
 sudo curl  --silent --output /etc/audit/rules.d/audit.rules https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules

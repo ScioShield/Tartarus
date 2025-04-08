@@ -87,7 +87,7 @@ references:
     - https://brightsec.com/blog/sql-injection-payloads/
     - https://github.com/payloadbox/sql-injection-payload-list
     - https://book.hacktricks.xyz/pentesting-web/sql-injection/mysql-injection
-author: Dylan Shield (Shieldia.co)
+author: Saw Win Naung, Nasreddine Bencherchali (Nextron Systems), Thurein Oo (Yoma Bank), Dylan Shield (Shieldia.co)
 date: 2025-03-31
 tags:
     - attack.initial-access

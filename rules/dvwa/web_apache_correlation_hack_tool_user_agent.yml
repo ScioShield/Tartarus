@@ -5,7 +5,7 @@ related:
       type: similar
 status: experimental
 name: base_rule_web_apache_correlation_hack_tool_user_agent
-description: Detects suspicius User-Agnets in Apache Web Server logs
+description: Detects suspicious User-Agents in Apache Web Server logs
 author: Florian Roth (Nextron Systems), Dylan Shield (Shieldia.co)
 date: 2025-03-18
 tags:
@@ -88,7 +88,7 @@ status: experimental
 name: web_apache_correlation_hack_tool_user_agent
 description: |
     Correlation rule to detect suspicius User-Agnets in Apache Web Server logs from a single source to a single destination
-author: Dylan Shield (Shieldia.co)
+author: Florian Roth (Nextron Systems), Dylan Shield (Shieldi.co)
 date: 2025/03/17
 tags:
     - attack.reconnaissance

@@ -370,12 +370,12 @@ sudo /opt/elastic-agent-$VER-linux-x86_64/elastic-agent install -f --url=https:/
   --fleet-server-cert=/etc/pki/fleet/fleet.crt \
   --fleet-server-cert-key=/etc/pki/fleet/fleet.key
 
-# Import all the custom Sigma security rules
-for file in /vagrant/rules/dvwa/*.ndjson; do
-  curl --silent -XPOST --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules/_import" \
+# Create all the custom DVWA Sigma security rules
+for file in /vagrant/rules/dvwa/*.json; do
+  curl --silent -XPOST --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules" \
     --cacert /vagrant/certs/root_ca.crt \
     --header @<(envsubst < /vagrant/config/import_headers.txt) \
-    --form "file=@$file" > /dev/null
+    --data "@$file" > /dev/null
 done
 
 # VM Settings

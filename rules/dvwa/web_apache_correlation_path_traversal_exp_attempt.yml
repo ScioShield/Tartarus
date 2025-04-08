@@ -15,6 +15,7 @@ tags:
 logsource:
     category: webserver
     product: apache
+    service: access
 detection:
     selection:
         cs-uri-query|contains:
@@ -39,7 +40,7 @@ description: |
 references:
     - https://github.com/projectdiscovery/nuclei-templates
     - https://book.hacktricks.xyz/pentesting-web/file-inclusion
-author: Dylan Shield (Shieldia.co)
+author: Subhash Popuri (@pbssubhash), Florian Roth (Nextron Systems), Thurein Oo, Nasreddine Bencherchali (Nextron Systems), Dylan Shield (Shieldia.co)
 date: 2025-03-29
 tags:
     - attack.initial-access
