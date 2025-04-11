@@ -1,0 +1,54 @@
+title: Base Rule - Web Apache Correlation XSS in User-Agent Attempt
+id: eb686504-6c0f-4dfd-9493-5f8b3dcd84aa
+status: experimental
+name: base_rule_web_apache_correlation_xss_ua_attempt
+description: Detect User-Agent based Cross Site Scripting attempt in webserver logs
+author: Dylan Shield (Shieldia.co)
+date: 2025-03-30
+modified: 2025-04-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+detection:
+    selection:
+        useragent|contains:
+            - '<script>'
+            - '</'
+            - 'alert('
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+---
+title: Web Apache Correlation XSS in User-Agent Attempt
+id: 000e7a6d-9807-4c85-80b8-5d6e76ceb05f
+status: experimental
+name: web_apache_correlation_xss_ua_attempt
+description: Detect User-Agent based Cross Site Scripting attempt in webserver logs
+author: Dylan Shield (Shieldia.co)
+date: 2025-04-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_xss_ua_attempt
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: useragent
+falsepositives:
+    - Unknown
+level: high
