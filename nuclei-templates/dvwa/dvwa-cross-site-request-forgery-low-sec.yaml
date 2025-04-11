@@ -2,12 +2,12 @@ id: dvwa-cross-site-request-forgery-low-sec
 
 info:
   name: DVWA Cross-Site Request Forgery User 1337 - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to exploit CSRF on DVWA after authentication.
   reference:
     - https://github.com/digininja/DVWA
-  tags: dvwa,auth,command-injection
+  tags: dvwa,csrf
 
 variables:
   userpass_old: "charley"

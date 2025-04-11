@@ -2,12 +2,12 @@ id: dvwa-brute-force-low-sec
 
 info:
   name: DVWA Brute Force - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to brute force the DVWA after authentication.
   reference:
     - https://github.com/digininja/DVWA
-  tags: dvwa,auth,brute-force
+  tags: dvwa,brute-force
 
 variables:
   password: "password"

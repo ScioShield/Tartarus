@@ -2,12 +2,12 @@ id: dvwa-headless-xss-reflected-low-sec
 
 info:
   name: XSS Detection reflected (Headless) with - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Detects reflected XSS by injecting JavaScript into the name value after authenticating to DVWA.
   reference:
     - https://github.com/digininja/DVWA
-  tags: xss,headless,javascript,user-agent,auth
+  tags: dvwa,xss-reflected,headless
 
 variables:
   password: "password"

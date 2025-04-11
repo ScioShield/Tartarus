@@ -2,12 +2,12 @@ id: web-directory-enum-simulated
 
 info:
   name: Web Directory Enumaration Simulated
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: info
   description: Simulates directory enumaration by sending 1100 requests to random directories of the target.
   reference:
     - https://attack.mitre.org/techniques/T1595/003/
-  tags: web,wordlist
+  tags: dvwa,dir-enum
 
 flow: |
   var all404 = true;

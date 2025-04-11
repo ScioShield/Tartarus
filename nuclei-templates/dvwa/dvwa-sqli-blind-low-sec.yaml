@@ -2,12 +2,12 @@ id: dvwa-sqli-blind-low-sec
 
 info:
   name: DVWA SQLi blind - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to exploit SQLi blind on DVWA after authentication.
   reference:
     - https://github.com/digininja/DVWA
-  tags: dvwa,auth,injection
+  tags: dvwa,sqli-blind
 
 variables:
   password: "password"

@@ -2,12 +2,12 @@ id: web-hack-tool-ua-enum-simulated
 
 info:
   name: Web Hack Tool User-Agent Enumaration Simulated
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: info
   description: Simulates Web Hack Tool User-Agent enumaration by sending requests with known bad User-Agents to the target.
   reference:
     - https://attack.mitre.org/techniques/T1595/003/
-  tags: web,wordlist
+  tags: dvwa,bad-ua
 
 variables:
   user_agents:

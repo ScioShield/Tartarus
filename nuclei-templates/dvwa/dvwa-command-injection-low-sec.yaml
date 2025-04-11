@@ -2,12 +2,12 @@ id: dvwa-command-injection-low-sec
 
 info:
   name: DVWA Command Injection - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to exploit command injection on DVWA after authentication.
   reference:
     - https://github.com/digininja/D
-  tags: dvwa,auth,command-injection
+  tags: dvwa,command-injection
 
 variables:
   password: "password"

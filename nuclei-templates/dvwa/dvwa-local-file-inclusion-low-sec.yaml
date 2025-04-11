@@ -2,12 +2,12 @@ id: dvwa-local-file-inclusion-low-sec
 
 info:
   name: DVWA Local File Inclustion - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to exploit LFI on DVWA after authentication.
   reference:
     - https://github.com/digininja/DVWA
-  tags: dvwa,auth,command-injection
+  tags: dvwa,lfi
 
 variables:
   password: "password"

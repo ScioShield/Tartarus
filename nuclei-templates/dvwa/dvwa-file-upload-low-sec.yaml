@@ -2,12 +2,12 @@ id: dvwa-file-upload-low-sec
 
 info:
   name: DVWA Local File Upload - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Attempts to exploit unfiltered file upload on DVWA after authentication.
   reference:
     - https://github.com/digininja/DVWA
-  tags: dvwa,auth,upload,file-upload
+  tags: dvwa,file-upload
 
 variables:
   password: "password"

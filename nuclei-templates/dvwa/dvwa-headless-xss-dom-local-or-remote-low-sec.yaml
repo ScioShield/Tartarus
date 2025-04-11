@@ -2,12 +2,12 @@ id: dvwa-headless-xss-dom-local-or-remote-low-sec
 
 info:
   name: XSS Detection DOM based (Headless) Local or Remote - low sec (Authenticated)
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: high
   description: Detects XSS DOM based by injecting the URI locally or remote depending on URL.
   reference:
     - https://github.com/digininja/DVWA
-  tags: xss,headless,dom
+  tags: dvwa,xss-dom,headless
 
 variables:
   username: admin

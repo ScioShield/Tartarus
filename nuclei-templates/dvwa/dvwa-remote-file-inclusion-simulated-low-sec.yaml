@@ -2,10 +2,10 @@ id: web-remote-file-inclusion-simulated
 
 info:
   name: Web Remote File Inclusion Enumaration Simulated
-  author: Shieldia
+  author: Dylan Shield (Shieldia.co)
   severity: info
   description: Simulates Remote File Inclustion
-  tags: web
+  tags: dvwa,rfi
 
 variables:
   password: "password"
