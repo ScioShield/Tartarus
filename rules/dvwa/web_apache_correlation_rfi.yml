@@ -1,10 +1,11 @@
-title: Web Apache Remote File Inclusion Attempt
+title: Base Rule - Web Apache Correlation Remote File Inclusion
 id: 5d649859-f4ac-4158-a5b7-e8321f5d155b
 status: experimental
-name: web_apache_rfi_attempt
+name: base_rule_web_apache_correlation_rfi
 description: Detect Remote File Inclusion attempts in webserver logs via URI parameters containing `http(s)` or an IPv4 address or a domain name
 author: Dylan Shield (Shieldia.co)
 date: 2025-03-30
+modified: 2025-04-11
 tags:
     - attack.initial-access
     - attack.t1190
@@ -18,7 +19,38 @@ detection:
             - '(.*)http(s?)(.*)'
             - '(.*)(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(.*)'
             - '.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)/(.*)|.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)'
+        status:
+            - 200
     condition: selection
+falsepositives:
+    - Unknown
+level: high
+---
+title: Web Apache Correlation Remote File Inclusion
+id: 6a82164d-a6bc-4639-9c2f-0973b6625eb9
+status: experimental
+name: web_apache_correlation_rfi
+description: Detect Remote File Inclusion attempts in webserver logs via URI parameters containing `http(s)` or an IPv4 address or a domain name
+author: Dylan Shield (Shieldia.co)
+date: 2025-04-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_rfi
+    group-by:
+        - host
+        - source.ip
+    timespan: 5m
+    condition:
+        gte: 1
+        field: uri-query
 falsepositives:
     - Unknown
 level: high

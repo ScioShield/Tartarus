@@ -42,12 +42,14 @@ references:
     - https://book.hacktricks.xyz/pentesting-web/file-inclusion
 author: Subhash Popuri (@pbssubhash), Florian Roth (Nextron Systems), Thurein Oo, Nasreddine Bencherchali (Nextron Systems), Dylan Shield (Shieldia.co)
 date: 2025-03-29
+modified: 2025-04-11
 tags:
     - attack.initial-access
     - attack.t1190
 logsource:
     category: webserver
     product: apache
+    service: access
 correlation:
     type: value_count
     rules:

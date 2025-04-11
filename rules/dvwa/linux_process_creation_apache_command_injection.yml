@@ -1,7 +1,7 @@
 title: Suspicious Process Spawned by Apache with Shell Metacharacters
 id: f4281164-f2fa-4f9b-b4cc-7af4ab73482a
 status: experimental
-name: base_rule_web_apache_correlation_command_injection
+name: web_apache_correlation_command_injection
 description: Detects successful Apache command injection via shell metacharacters
 author: Dylan Shield (Shieldia.co)
 date: 2025-03-24

@@ -1,0 +1,56 @@
+title: Base Rule - Web Apache Correlation Open HTTP Redirect
+id: c8b61928-ce26-41c5-b720-3d2e2f5375fa
+status: experimental
+name: base_rule_web_apache_correlation_open_http_redirect
+description: Detect Open HTTP Redirect attempts in webserver logs via URI parameters containing `http(s)` or an IPv4 address or a domain name
+author: Dylan Shield (Shieldia.co)
+date: 2025-04-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+detection:
+    selection:
+        uri-query|re:
+            - '(.*)http(s?)(.*)'
+            - '(.*)(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(.*)'
+            - '.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)/(.*)|.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)'
+        status:
+            - 302
+            - 307
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+---
+title: Web Apache Correlation Open HTTP Redirect
+id: 885943bf-c35a-4266-834d-a5b474f90a13
+status: experimental
+name: web_apache_correlation_open_http_redirect
+description: Detect Open HTTP Redirect attempts in webserver logs via URI parameters containing `http(s)` or an IPv4 address or a domain name
+author: Dylan Shield (Shieldia.co)
+date: 2025-04-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: apache
+    service: access
+    category: webserver
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_open_http_redirect
+    group-by:
+        - host
+        - source.ip
+    timespan: 5m
+    condition:
+        gte: 1
+        field: uri-query
+falsepositives:
+    - Unknown
+level: high

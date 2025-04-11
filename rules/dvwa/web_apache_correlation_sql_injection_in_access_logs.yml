@@ -1,6 +1,9 @@
 title: Base Rule - SQL Injection Strings In URI
-id: 5513deaf-f49a-46c2-a6c8-3f111b5cb453
-status: test
+id: ffaaa221-0481-41ea-be8b-fe7f44cbbd52
+related:
+    - id: 5513deaf-f49a-46c2-a6c8-3f111b5cb453
+      type: similar
+status: experimental
 description: Detects potential SQL injection attempts via GET requests in access logs.
 name: base_rule_sqli_strings_in_uri
 references:
@@ -11,7 +14,7 @@ references:
     - https://book.hacktricks.xyz/pentesting-web/sql-injection/mysql-injection
 author: Saw Win Naung, Nasreddine Bencherchali (Nextron Systems), Thurein Oo (Yoma Bank), Dylan Shield (Shieldia.co)
 date: 2020-02-22
-modified: 2025-03-31
+modified: 2025-04-09
 tags:
     - attack.initial-access
     - attack.t1190
@@ -52,6 +55,9 @@ detection:
             - 'table_schema'
             - 'UNION ALL SELECT'
             - 'UNION SELECT'
+            - 'UNION+SELECT'
+            - 'SLEEP('
+            - 'SLEEP%28'
             - 'UNION%20ALL%20SELECT'
             - 'UNION%20SELECT'
             - "'1'='1"
@@ -66,9 +72,7 @@ detection:
             - "%7C%7C%276"
             - "or+0%3D0+%23"
             - "+or+0%3D0+%23%22"
-    filter_main_status:
-        sc-status: 404
-    condition: selection and not 1 of filter_main_*
+    condition: selection
 falsepositives:
     - Java scripts and CSS Files
     - User searches in search boxes of the respective website
@@ -95,6 +99,7 @@ tags:
 logsource:
     category: webserver
     product: apache
+    service: access
 correlation:
     type: value_count
     rules:

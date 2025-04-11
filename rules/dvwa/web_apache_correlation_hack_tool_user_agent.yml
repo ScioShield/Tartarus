@@ -18,7 +18,7 @@ tags:
 logsource:
     product: apache
     service: access
-    category: web
+    category: webserver
 detection:
     selection:
         c-useragent|contains:
@@ -89,7 +89,7 @@ name: web_apache_correlation_hack_tool_user_agent
 description: |
     Correlation rule to detect suspicius User-Agnets in Apache Web Server logs from a single source to a single destination
 author: Florian Roth (Nextron Systems), Dylan Shield (Shieldi.co)
-date: 2025/03/17
+date: 2025-03-17
 tags:
     - attack.reconnaissance
     - attack.t1595.002
@@ -100,7 +100,7 @@ tags:
 logsource:
     product: apache
     service: access
-    category: web
+    category: webserver
 correlation:
     type: value_count
     rules:
