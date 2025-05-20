@@ -142,7 +142,7 @@ $aliases = [
     [
         "name" => "Monitoring",
         "type" => "port",
-        "content" => "8220\n9200",
+        "content" => "8220\n9200\n5443",
         "description" => "Monitoring",
         "proto" => "",
         "categories" => "",
@@ -182,7 +182,7 @@ $rules = [
     [
         "action" => "pass",
         "description" => "Allow Elasticsearch traffic",
-        "interface" => "opt1,opt2",
+        "interface" => "opt1,opt2,opt3",
         "ipprotocol" => "inet",
         "statetype" => "keep state",
         "direction" => "in",

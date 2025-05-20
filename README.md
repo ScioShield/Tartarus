@@ -402,7 +402,7 @@ Firewall rules (will change in future so only used as a guide)
 | Pass   |  Yes  |  Allow HTTPS and SSH          | WAN             | TCP      | Any     | (self)      | 22, 443                     |
 | Pass   |  Yes  |  Allow All from LAN           | LAN             | ANY      | Any     | ANY         | ANY                         |
 
-All hosts have static IP addresses assigned in the the Vagrant file. All hosts also have 2 interfaces, the first is the default NAT type that Vagrant needs to manage the VMs via SSH / winrm, the second interface is the statically assigned one. We "cost out" the first interface by some metic trickery, this doesn't disable the interface entirely so it is still possible to reach the outside, even if you enforce FW rules however for the most part the firewall rules are respected.
+All hosts have static IP addresses assigned in the the Vagrant file. All hosts also have 2 interfaces, the first is the default NAT type that Vagrant needs to manage the VMs via SSH / winrm, the second interface is the statically assigned one. We "cost out" the first interface by some metric trickery, this doesn't disable the interface entirely so it is still possible to reach the outside, even if you enforce FW rules however for the most part the firewall rules are respected.
 
 ## Note
 **This is not for production!**  
@@ -514,7 +514,7 @@ All licenses are valid at the time of commit !
 - Kali Linux is licensed under the [EULA](https://www.kali.org/docs/policy/eula/EULA.txt)
 - Windows is licensed under the [Windows 10 Enterprise Evaluation](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
 - Elastic is licensed under the [GNU Affero General Public License v3.0](https://github.com/elastic/elasticsearch/blob/main/LICENSE.txt)
-- EDR-Telemetry is unlicensed
+- EDR-Telemetry is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](https://github.com/tsale/EDR-Telemetry/blob/main/LICENSE)
 - Atomic Red Team is licensed under the [MIT LIcense](https://github.com/redcanaryco/atomic-red-team/blob/master/LICENSE.txt)
 - pySigma is licensed under the [GNU Lesser General Public License v2.1](https://github.com/SigmaHQ/pySigma/blob/main/LICENSE)
 - Sigma Rules are licensed under the [DRL 1.1](https://github.com/SigmaHQ/Detection-Rule-License/blob/main/LICENSE.Detection.Rules.md)

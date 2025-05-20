@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     opnsense.vm.provider :virtualbox do |v|
      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      v.customize ["modifyvm", :id, "--cpus", 2]
-     v.customize ["modifyvm", :id, "--memory", 1024]
+     v.customize ["modifyvm", :id, "--memory", 2048]
      v.customize ["modifyvm", :id, "--name", "tartarus-opnsense"]
     end
   end
@@ -41,6 +41,7 @@ Vagrant.configure("2") do |config|
     elastic.vm.box_url = "bento/rockylinux-8.7"
     elastic.vm.network :private_network, ip: "192.168.56.10", virtualbox__intnet: "vboxnet0", auto_config: false
     elastic.vm.network :forwarded_port, guest: 5443, host: 5443, host_ip: "0.0.0.0", id: "kibana", auto_correct: true
+    elastic.vm.network :forwarded_port, guest: 9200, host: 9200, host_ip: "0.0.0.0", id: "elastic", auto_correct: true
     elastic.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 4]
@@ -283,7 +284,7 @@ EOF
       
       if ($routeExists -ne $null) {
           Write-Host "Route already exists. Updating metric..."
-          route change 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1
+          route change 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1 -p
       } else {
           Write-Host "Adding new route..."
           route add 0.0.0.0 mask 0.0.0.0 10.0.2.2 metric 1000 IF $interfaceIndexEth1 -p
@@ -308,7 +309,7 @@ SHELL
     kali.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--cpus", 4]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--memory", 6144]
       v.customize ["modifyvm", :id, "--name", "tartarus-kali"]
     end
     kali.vm.provision "shell", inline: <<-SHELL

