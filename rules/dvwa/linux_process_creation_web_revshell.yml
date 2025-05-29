@@ -5,7 +5,7 @@ name: linux_process_creation_web_reverse_shell
 description: Detect a reverse shell via username and commandline args, like the auditd rule
 author: Dylan Shield (Shieldia.co)
 date: 2025-03-31
-updated: 2025-05-28
+modified: 2025-05-28
 tags:
     - attack.execution
     - attack.t1203
