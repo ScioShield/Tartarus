@@ -16,10 +16,10 @@ detection:
     selection:
         User:
             - 'www-data'
-        CommandLine|contains:
+        CommandLine|re:
             - 'sh -i'
-            - 'sh*<&*'
-            - 'sh*>&*'
+            - 'sh -c sh.*\\<\\&.*'
+            - 'sh -c sh.*\\>\\&.**'
     condition: selection
 falsepositives:
     - Unknown
