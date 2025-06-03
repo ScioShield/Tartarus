@@ -6,13 +6,40 @@ Tartarus (renamed from AtomicFireFly), is designed to automate the process of de
 **N.B.** Modern CPUs have virtual cores so if your CPU has 4 cores then it will have 8 vCPU cores. The below tabes all represent vCPU cores required by the VMs.  
 #### SIEM only
 Deployment (Default):  
-- Windows `$env:HOSTS = "elastic"; vagrant up opnsense; vagrant up opnsense elastic`  
-- Linux `vagrant up opnsense && HOSTS=elastic vagrant up opnsense elastic`  
+- Windows 
+```powershell
+$env:HOSTS = "elastic"; vagrant up opnsense 
+```
+Then run:
+```bash
+vagrant up opnsense elastic` 
+```
+- Linux 
+```
+vagrant up opnsense 
+```
+Then run:
+```bash
+HOSTS=elastic vagrant up opnsense elastic
+```
 
 Deployment (Bluemin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "elastic"; vagrant up opnsense; vagrant up opnsense elastic`  
-- Linux `VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense && HOSTS=elastic vagrant up opnsense elastic`  
-
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "elastic"; vagrant up opnsense 
+```
+Then run:
+```powershell
+vagrant up opnsense elastic
+```
+- Linux 
+```bash
+VAGRANT_VAGRANTFILE=Vagrantfile.bluemin vagrant up opnsense 
+```
+Then run:
+```bash
+HOSTS=elastic vagrant up opnsense elastic
+```
 ##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
 |-----------------------|-----------|-------------|----------------|
@@ -97,12 +124,40 @@ Verify access with a little `curl -L -k https://tartarus-opnsense.home.arpa:8443
 
 #### SIEM + Linux
 Deployment (Default):  
-- Windows `$env:HOSTS = "linux"; vagrant up opnsense; vagrant up opnsense elastic linux`  
-- Linux `vagrant up opnsense && HOSTS=linux vagrant up opnsense elastic linux`  
+- Windows 
+```powershell
+$env:HOSTS = "linux"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic linux
+```
+- Linux 
+```bash
+vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=linux vagrant up opnsense elastic linux
+```
 
 Deployment (Bluemin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linux"; vagrant up opnsense; vagrant up opnsense elastic linux`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense && HOSTS=linux vagrant up opnsense elastic linux`  
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linux"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic linux
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=linux vagrant up opnsense elastic linux
+```
 
 ##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
@@ -146,12 +201,40 @@ Complete DNS settings from the above example.
 
 #### SIEM + Windows
 Deployment (Default):  
-- Windows `$env:HOSTS = "windows"; vagrant up opnsense; vagrant up opnsense elastic windows`  
-- Linux `vagrant up opnsense && HOSTS=windows vagrant up opnsense elastic windows`  
+- Windows 
+```powershell
+$env:HOSTS = "windows"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic windows
+```
+- Linux 
+```bash
+vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=windows vagrant up opnsense elastic windows
+```
 
 Deployment (Bluemin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "windows"; vagrant up opnsense; vagrant up opnsense elastic windows`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense && HOSTS=windows vagrant up opnsense elastic windows`  
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "windows"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic windows
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=windows vagrant up opnsense elastic windows
+```
 
 ##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
@@ -201,12 +284,40 @@ On Windows you can use the built in RDP client.
 
 #### SIEM + Linux + Windows
 Deployment (Default):  
-- Windows `$env:HOSTS = "linwin"; vagrant up opnsense; vagrant up opnsense elastic linux windows`  
-- Linux `vagrant up opnsense && HOSTS=linwin vagrant up opnsense elastic linux windows`  
+- Windows 
+```powershell
+$env:HOSTS = "linwin"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic linux windows
+```
+- Linux 
+```bash
+vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=linwin vagrant up opnsense elastic linux windows
+```
 
 Deployment (Bluemin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linwin"; vagrant up opnsense; vagrant up opnsense elastic linux windows`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense && HOSTS=linwin vagrant up opnsense elastic linux windows`  
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "linwin"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic linux windows
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=linwin vagrant up opnsense elastic linux windows
+```
 
 ##### Vagrantfile
 | VM Name               | CPU Cores | Memory (MB) | Private IP     |
@@ -247,20 +358,75 @@ Follow the guides above for access to any of the guests.
 
 #### SIEM + Damn Vulnerable Web Application + Kali
 Deployment (Default):  
-- Windows `$env:HOSTS = "dvwa"; vagrant up opnsense; vagrant up opnsense elastic dvwa kali`  
-- Linux `vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
+- Windows 
+```powershell
+$env:HOSTS = "dvwa"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic dvwa kali
+```
+- Linux 
+```bash
+vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=dvwa vagrant up opnsense elastic dvwa kali
+```
 
 Deployment (Bluemin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "dvwa"; vagrant up opnsense; vagrant up opnsense elastic dvwa kali`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense && HOSTS=dvwa vagrant up opnsense elastic dvwa kali`  
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.bluemin"; $env:HOSTS = "dvwa"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense elastic dvwa kali
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.bluemin; vagrant up opnsense
+```
+Then run:
+```bash
+HOSTS=dvwa vagrant up opnsense elastic dvwa kali
+```
 
 Deployment (Red):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.red"; vagrant up opnsense; vagrant up opnsense dvwa kali`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.red; vagrant up opnsense && vagrant up opnsense dvwa kali`  
-
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.red"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense dvwa kali
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.red; vagrant up opnsense
+```
+Then run:
+```bash
+vagrant up opnsense dvwa kali
+```
 Deployment (Redmin):  
-- Windows `$env:VAGRANT_VAGRANTFILE = "Vagrantfile.redmin"; vagrant up opnsense; vagrant up opnsense dvwa kali`  
-- Linux `export VAGRANT_VAGRANTFILE=Vagrantfile.redmin; vagrant up opnsense && vagrant up opnsense dvwa kali`  
+- Windows 
+```powershell
+$env:VAGRANT_VAGRANTFILE = "Vagrantfile.redmin"; vagrant up opnsense
+```
+Then run:
+```powershell
+vagrant up opnsense dvwa kali
+```
+- Linux 
+```bash
+export VAGRANT_VAGRANTFILE=Vagrantfile.redmin; vagrant up opnsense
+```
+Then run:
+```bash
+vagrant up opnsense dvwa kali
+```
 
 Although we expose the default port `80` that the DVWA is served on to the host machine at `http://127.0.0.1:8180` it's advised to deploy the Kali host to attack the DVWA as it will have more of the tools you'll need pre-installed.  
 
