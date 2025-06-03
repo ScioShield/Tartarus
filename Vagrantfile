@@ -321,13 +321,13 @@ SHELL
     nmcli connection up eth1
     echo "    metric 100" >> /etc/network/interfaces
     systemctl restart networking.service
-    cat >> /etc/hosts << EOF
-    192.168.56.71 tartarus-dvwa.home.arpa
-    192.168.56.193 tartarus-opnsense.home.arpa
-    192.168.56.10 tartarus-elastic.home.arpa
-    192.168.56.80 tartarus-windows.home.arpa
-    192.168.56.70 tartarus-linux.home.arpa
-    EOF
+cat >> /etc/hosts << EOF
+192.168.56.71 tartarus-dvwa.home.arpa
+192.168.56.193 tartarus-opnsense.home.arpa
+192.168.56.10 tartarus-elastic.home.arpa
+192.168.56.80 tartarus-windows.home.arpa
+192.168.56.70 tartarus-linux.home.arpa
+EOF
     SHELL
   end
 end
