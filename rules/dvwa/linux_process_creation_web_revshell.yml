@@ -18,8 +18,8 @@ detection:
             - 'www-data'
         CommandLine|re:
             - 'sh -i'
-            - 'sh -c (ba?)sh.*\\<\\&.*'
-            - 'sh -c (ba?)sh.*\\>\\&.*'
+            - 'sh -c (ba)?sh.*\\<\\&.*'
+            - 'sh -c (ba)?sh.*\\>\\&.*'
     condition: selection
 falsepositives:
     - Unknown
