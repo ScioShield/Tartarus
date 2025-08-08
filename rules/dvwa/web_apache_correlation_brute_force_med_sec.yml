@@ -1,0 +1,93 @@
+title: Base Rule - Web Apache Correlation Brute Force Med Sec
+id: 9e90c8bf-a14f-45b6-bd9f-1480ad1bd693 
+status: experimental
+name: base_rule_web_apache_correlation_brute_force_med_sec
+description: Detects an attempt to brute force a webserver by the method and username and password in url parameters
+author: Dylan Shield (Shieldia.co)
+date: 2025-08-08
+tags:
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: webserver
+detection:
+    selection:
+      status: 200
+      url|contains|all:
+          - "username="
+          - "password="
+          - "Login="
+    condition: selection
+level: medium
+---
+title: Web Apache Correlation Brute Force Med Sec
+id: 1f1b5db3-233f-4070-9cb0-bb369a4e0170 
+status: experimental
+name: web_apache_correlation_brute_force_med_sec
+description: |
+    Correlation rule to detect an attempt to brute force a webserver by the method and username and password in url parameters
+    Run this ES|QL search to get targeted users:
+    FROM logs-apache.access-default
+    | WHERE url.query LIKE "*username=*" AND url.query LIKE "*password=*" AND url.query LIKE "*Login=*"
+    | EVAL username = split(url.query,"&")
+    | STATS attempt_count = COUNT(url.query) BY username
+    | EVAL valid = CASE (starts_with(username, "username="),true)
+    | WHERE valid
+    | EVAL user = REPLACE(username,"username=", "")
+    | SORT attempt_count DESC
+    | WHERE attempt_count > 10
+author: Dylan Shield (Shieldia.co)
+date: 2025-08-08
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: webserver
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_brute_force_med_sec
+    group-by:
+        - clientip
+        - host
+    timespan: 1m
+    condition:
+        gte: 20
+        field: uri-query
+falsepositives:
+  - Unlikely
+level: medium
+---
+title: Threat Hunt - Web Apache Correlation Brute Force Med Sec 
+id: b4be8440-3124-4728-aa22-f6123158d3d6 
+status: experimental
+name: threat_hunt_web_apache_correlation_brute_force_med_sec
+description: |
+    Correlation rule to detect an attempt to brute force a webserver by the method and username and password in url parameters
+author: Dylan Shield (Shieldia.co)
+date: 2025-08-08
+tags:
+  - attack.reconnaissance
+  - attack.t1595.001
+logsource:
+    product: apache
+    service: access
+    category: web
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_brute_force_med_sec
+    group-by:
+        - clientip
+        - host
+    timespan: 1d
+    condition:
+        gte: 10
+        field: uri-query
+falsepositives:
+  - Unlikely
+level: medium
