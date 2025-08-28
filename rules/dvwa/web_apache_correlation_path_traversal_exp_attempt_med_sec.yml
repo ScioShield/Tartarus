@@ -1,0 +1,70 @@
+title: Base Rule - Path Traversal Exploitation Attempts Med Sec
+id: 08f928d4-866d-4178-84f8-cdae6fe2e3c6
+related:
+    - id: 7745c2ea-24a5-4290-b680-04359cb84b35
+      type: derived
+status: test
+name: base_rule_path_traversal_exploitation_attempts_med_sec
+description: Detects path traversal exploitation attempts
+references:
+    - https://github.com/projectdiscovery/nuclei-templates
+    - https://book.hacktricks.xyz/pentesting-web/file-inclusion
+author: Subhash Popuri (@pbssubhash), Florian Roth (Nextron Systems), Thurein Oo, Nasreddine Bencherchali (Nextron Systems), Dylan Shield (Shieldia.co)
+date: 2025-08-28
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: access
+detection:
+    selection:
+        cs-uri-query|re:
+            - '.*etc/+passwd.*'
+            - '.*etc[%2f]+passwd.*'
+            - '.*var/+log.*'
+            - '.*var[%2f]+log.*'
+            - '.*var/+lib.*'
+            - '.*var[%2f]+lib.*'
+            - '.*var/+www.*'
+            - '.*var[%2f]+www.*'
+    condition: selection
+falsepositives:
+    - Expected to be continuously seen on systems exposed to the Internet
+    - Internal vulnerability scanners
+level: medium
+---
+title: Path Traversal Exploitation Attempts Med Sec
+id: 0a5ed72a-a429-44bc-b917-b6f9c0540851
+status: experimental
+name: path_traversal_exploitation_attempts_med_sec
+description: |
+    Detects path traversal exploitation attempts
+references:
+    - https://github.com/projectdiscovery/nuclei-templates
+    - https://book.hacktricks.xyz/pentesting-web/file-inclusion
+author: Subhash Popuri (@pbssubhash), Florian Roth (Nextron Systems), Thurein Oo, Nasreddine Bencherchali (Nextron Systems), Dylan Shield (Shieldia.co)
+date: 2025-08-28
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: access
+correlation:
+    type: value_count
+    rules:
+    - base_rule_path_traversal_exploitation_attempts_med_sec
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: cs-uri-query
+falsepositives:
+    - Expected to be continuously seen on systems exposed to the Internet
+    - Internal vulnerability scanners
+level: medium

