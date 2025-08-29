@@ -1,0 +1,66 @@
+title: Base Rule - PHP Stream Med Sec
+id: 26dc4817-8af5-4b9b-88f1-5d1eb90105a4
+status: experimental
+name: base_rule_php_stream_med_sec
+description: Detects PHP Stream attempts
+references:
+    - https://www.php.net/manual/en/wrappers.php
+author: Dylan Shield (Shieldia.co) 
+date: 2025-08-29
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: access
+detection:
+    selection:
+        cs-uri-query|re:
+            - '.*data://.*'
+            - '.*file://.*'
+            - '.*ftp://.*'
+            - '.*php://*'
+            - '.*zlib://.*'
+            - '.*glob://.*'
+            - '.*phar://.*'
+            - '.*ssh2://.*'
+            - '.*rar://.*'
+            - '.*ogg://.*'
+            - '.*expect://.*'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+---
+title: PHP Stream Med Sec
+id: 5aee434b-fdc7-4a07-8d69-ea30cffac397
+status: experimental
+name: php_stream_med_sec
+description: |
+    Detects PHP Stream attempts
+references:
+    - https://www.php.net/manual/en/wrappers.php
+author: Dylan Shield (Shieldia.co) 
+date: 2025-08-29
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    category: webserver
+    product: apache
+    service: access
+correlation:
+    type: value_count
+    rules:
+    - base_rule_php_stream_med_sec
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 1
+        field: cs-uri-query
+falsepositives:
+    - Unknown
+level: medium

