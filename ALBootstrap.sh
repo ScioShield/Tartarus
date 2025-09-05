@@ -31,7 +31,7 @@ echo "Elasticsearch is reachable"
 sudo /opt/elastic-agent-${VER}-linux-x86_64/elastic-agent install -f \
   --url=https://${DNS}:${F_PORT} \
   --enrollment-token=$(cat /vagrant/tokens/LAEtoken.txt) \
-  --certificate-authorities=/vagrant/certs/root_ca.crt
+  --certificate-authorities=/vagrant/certs/bundle.crt
 
 # Download the audit.rules file
 sudo curl  --silent --output /etc/audit/rules.d/audit.rules https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules

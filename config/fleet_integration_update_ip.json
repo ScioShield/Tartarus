@@ -11,7 +11,7 @@
     "fleet_server-fleet-server": {
       "enabled": true,
       "vars": {
-        "custom": "ssl.certificate_authorities: [\"/vagrant/certs/root_ca.crt\"]"
+        "custom": "ssl.certificate_authorities: [\"/vagrant/certs/bundle.crt\"]"
       },
       "streams": {}
     }

@@ -31,7 +31,7 @@ echo "Elasticsearch is reachable"
 sudo /opt/elastic-agent-${VER}-linux-x86_64/elastic-agent install -f \
   --url=https://${DNS}:${F_PORT} \
   --enrollment-token=$(cat /vagrant/tokens/APACHELAEtoken.txt) \
-  --certificate-authorities=/vagrant/certs/root_ca.crt
+  --certificate-authorities=/vagrant/certs/bundle.crt
 
 # Install auditd
 sudo apt -y install auditd

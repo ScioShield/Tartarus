@@ -160,6 +160,11 @@ else
   cp /root/.step/certs/*.crt /root/.step/secrets/*_key /vagrant/certs/
 fi
 
+# Make a cert bundle for the Elastic Agent to use
+if [ ! -f /vagrant/certs/bundle.crt ]; then
+  cat /vagrant/certs/root_ca.crt /vagrant/certs/intermediate_ca.crt > /vagrant/certs/bundle.crt
+fi
+
 # Make the cert dir to prevent pop-up later
 mkdir /tmp/certs/
 
