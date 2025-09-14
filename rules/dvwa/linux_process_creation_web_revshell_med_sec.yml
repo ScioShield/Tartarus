@@ -1,0 +1,24 @@
+title: Linux Process Creation Web Reverse Shell Med Sec
+id: 39189965-0d59-4a0a-9e98-1b3a338ae959 
+status: experimental
+name: linux_process_creation_web_reverse_shell_med_sec
+description: Detect a reverse shell via username and commandline args, like the auditd rule
+author: Dylan Shield (Shieldia.co)
+date: 2025-09-13
+tags:
+    - attack.execution
+    - attack.t1203
+logsource:
+  category: process_creation
+  product: linux
+detection:
+    selection:
+        User:
+            - 'www-data'
+        CommandLine|re:
+            - 'sh -i'
+            - 'sh -c (ba)?sh.*'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high

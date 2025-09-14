@@ -1,0 +1,22 @@
+title: Suspicious Process Spawned by Apache with Shell Metacharacters Med Sec
+id: 746ad7b5-a86d-4196-a901-0a7316aea5b6
+status: experimental
+name: web_apache_correlation_command_injection_med_sec
+description: Detects successful Apache command injection via shell metacharacters
+author: Dylan Shield (Shieldia.co)
+date: 2025-09-13
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_user:
+    User: www-data
+  selection_args:
+    CommandLine|re: '.*[;|&`><$()].*'
+  condition: selection_user and selection_args
+falsepositives:
+    - Unknown
+level: high
