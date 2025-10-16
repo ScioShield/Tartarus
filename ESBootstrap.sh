@@ -383,6 +383,15 @@ for file in /vagrant/rules/dvwa/*.json; do
     --data "@$file" > /dev/null
 done
 
+# Create all the custom THM Sigma security rules
+for file in /vagrant/rules/thm/*.json; do
+  curl --silent -XPOST --url "https://$DNS:$K_PORT_EXT/api/detection_engine/rules" \
+    --cacert /vagrant/certs/root_ca.crt \
+    --header @<(envsubst < /vagrant/config/import_headers.txt) \
+    --data "@$file" > /dev/null
+done
+
+
 # VM Settings
 echo "Changing the default route to go via the firewall!"
 sed -i 's/DEFROUTE=yes/DEFROUTE=no/' /etc/sysconfig/network-scripts/ifcfg-eth0
