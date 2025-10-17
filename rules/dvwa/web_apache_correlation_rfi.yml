@@ -21,7 +21,10 @@ detection:
             - '.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)/(.*)|.*\.(com|net|org|gov|edu|io|dev|arpa|local|test|home|biz|info|co|us|uk|de|fr|jp|ca|au|nz|eu|cn|in)'
         status:
             - 200
-    condition: selection
+    filter:
+        url|contains:
+            - '/wp-login.php?redirect_to'
+    condition: selection and not filter
 falsepositives:
     - Unknown
 level: high
