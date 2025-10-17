@@ -1,0 +1,63 @@
+title: Base Rule - Web Apache Correlation WordPress POST Brute Force
+id: b4d688dd-8913-4dac-9ed2-2948246f750e 
+status: experimental
+name: base_rule_web_apache_correlation_wordpress_post_brute_force
+description: Detects an increase in POST requests to the WordPress login page indicating a potential brute force
+author: Dylan Shield (Shieldia.co)
+date: 2025-10-17
+tags:
+    - attack.reconnaissance
+    - attack.t1595.002
+    - attack.initial-access
+    - attack.t1190
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: webserver
+detection:
+    selection:
+        method: 'POST'
+        url|contains: 
+          - '/wp-login.php'
+          - '/wp%2Dlogin%2Ephp'
+          - '/wp-login%2Ephp'
+          - '/wp%2Dlogin.php'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+---
+title: Web Apache Correlation WordPress POST Brute Force
+id: 17e3b40c-4c8a-47f1-9ff6-3edff6317917 
+status: experimental
+name: web_apache_correlation_wordpress_post_brute_force
+description: Detects an increase in POST requests to the WordPress login page indicating a potential brute force
+author: Dylan Shield (Shieldi.co)
+date: 2025-10-17
+tags:
+    - attack.reconnaissance
+    - attack.t1595.002
+    - attack.initial-access
+    - attack.t1190
+    - attack.credential-access
+    - attack.t1110
+logsource:
+    product: apache
+    service: access
+    category: webserver
+correlation:
+    type: value_count
+    rules:
+    - base_rule_web_apache_correlation_wordpress_post_brute_force
+    group-by:
+        - clientip
+        - host
+    timespan: 5m
+    condition:
+        gte: 100
+        field: _id
+falsepositives:
+  - Unlikely
+level: medium
