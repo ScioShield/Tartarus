@@ -1,0 +1,16 @@
+transformations:
+  - id: ecs_linux_builtin_auth_field_mapping
+    type: field_name_mapping
+    mapping:
+      ProcessName: log.syslog.appname
+      CommandLine: process.command_line
+      User: user.name
+      Hostname: host.name
+      EventTime: "@timestamp"
+      Action: event.action
+      UserId: user.id
+      Message: message
+      rule_conditions:
+        - type: logsource
+          product: linux
+          category: auth
