@@ -1,0 +1,21 @@
+title: Linux Local Lateral Movement www-data Switch User Activity
+id: a8a920d7-4ae8-49f9-801c-f9c489ec537f
+status: experimental
+description: Detects Linux Switch User (su) activity from the web server www-data user logging into a different local account.
+author: Dylan Shield (Shieldia.co)
+date: 2025-10-20
+tags:
+    - attack.initial-access
+    - attack.t1078.003
+logsource:
+    product: linux
+    service: auth
+detection:
+    selection:
+        Action: 'logged-on'
+        UserId: '33'
+        ProcessName: 'su'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
