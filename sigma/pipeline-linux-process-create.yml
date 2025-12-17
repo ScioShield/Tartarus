@@ -4,6 +4,7 @@ transformations:
     mapping:
       ParentProcessName: process.parent.name
       ParentProcessId: process.parent.pid
+      ParentProcessArgs: process.parent.args
       ProcessName: process.name
       ProcessId: process.pid
       CommandLine: process.command_line

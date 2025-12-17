@@ -1,0 +1,27 @@
+title: Suspicious Process Spawned by Node
+id: 445ee18e-b50d-4556-ab53-8eaf08b64ab6 
+status: experimental
+name: linux_porocess_node_correlation_rce
+description: Detects successful Node RCE via shell commands
+author: Dylan Shield (Shieldia.co)
+date: 2025-12-17
+tags:
+    - attack.initial-access
+    - attack.t1190
+    - cve.2025-55182
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection:
+    ParentProcessName: node
+    ParentProcessArgs|re: '.*start.*'
+    CommandLine|re: '.*sh -c.*'
+  filter:
+    CommandLine|re:
+      - '.*git config.*'
+      - '.*next start.*'
+  condition:  selection and not filter
+falsepositives:
+    - Unknown
+level: critical
