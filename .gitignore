@@ -3,3 +3,4 @@
 [Pp]assword.txt
 .env
 ca-password.txt
+*.log
